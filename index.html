@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Puzzle Game</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .heading-font {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        /* Skeuomorphic Corkboard background styling matching reference image */
+        .cork-bg {
+            background-color: #d1a774;
+            background-image: 
+                radial-gradient(rgba(0, 0, 0, 0.15) 15%, transparent 16%),
+                radial-gradient(rgba(255, 255, 255, 0.25) 15%, transparent 16%),
+                radial-gradient(rgba(0, 0, 0, 0.1) 15%, transparent 20%),
+                radial-gradient(rgba(255, 255, 255, 0.15) 15%, transparent 20%);
+            background-position: 0 0, 8px 8px, 4px 4px, 12px 12px;
+            background-size: 16px 16px;
+        }
+
+        /* 3DS Metallic dark button styling */
+        .btn-3ds {
+            background: linear-gradient(to bottom, #5a4b41 0%, #382c23 50%, #241a13 51%, #120c08 100%);
+            border: 2px solid #7c6857;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 3px 6px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 2px rgba(0,0,0,0.8);
+            transition: all 0.1s ease;
+        }
+
+        .btn-3ds:hover {
+            background: linear-gradient(to bottom, #6d5b50 0%, #48392e 50%, #30231a 51%, #1c140d 100%);
+            border-color: #9e8570;
+        }
+
+        .btn-3ds:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Highlighted White Button Style from Reference */
+        .btn-3ds-white {
+            background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #d0d0d0 100%);
+            border: 2px solid #aaaaaa;
+            color: #1a1a1a !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 3px 6px rgba(0,0,0,0.3);
+            text-shadow: none;
+        }
+
+        .btn-3ds-white:hover {
+            background: linear-gradient(to bottom, #ffffff 0%, #f9f9f9 50%, #ececec 51%, #d8d8d8 100%);
+        }
+
+        /* Yellow Header Ribbon */
+        .ribbon-yellow {
+            background: linear-gradient(to bottom, #ffd82b 0%, #fca800 100%);
+            border-top: 2px solid #ffe869;
+            border-bottom: 2px solid #c78000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Puzzle Piece Frame & Drag Feedback */
+        .puzzle-cell {
+            transition: background-color 0.15s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .puzzle-cell.elevated-cell {
+            z-index: 9999 !important;
+        }
+
+        .puzzle-piece {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.15s ease, filter 0.2s ease;
+            cursor: grab;
+            z-index: 10;
+            will-change: transform;
+        }
+
+        .puzzle-piece:active {
+            cursor: grabbing;
+            z-index: 50;
+        }
+
+        /* Shuffle Animation FX - Elevated gliding above other pieces */
+        .shuffling-piece {
+            z-index: 9999 !important;
+            transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6), 0 0 15px rgba(255, 255, 255, 0.5) !important;
+            filter: brightness(1.1);
+        }
+
+        @keyframes zoomInIntro {
+            0% { transform: scale(0.6); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .zoom-intro {
+            animation: zoomInIntro 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Snap Flash & Shake FX */
+        @keyframes snapPulse {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.08); filter: brightness(1.6); box-shadow: 0 0 20px #5eff5e; }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+
+        .snap-animation {
+            animation: snapPulse 0.35s ease-out;
+            z-index: 30;
+        }
+
+        /* Glow effects for target slot */
+        .drag-over-slot {
+            background-color: rgba(255, 255, 255, 0.4) !important;
+            box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-2 sm:p-4 select-none">
+
+    <div id="game-container" class="relative w-full max-w-2xl bg-black rounded-xl overflow-hidden shadow-2xl border-4 border-gray-700 flex flex-col justify-between" style="min-height: 580px;">
+
+        <!-- ================= MAIN MENU SCREEN ================= -->
+        <div id="menu-screen" class="cork-bg flex-1 flex flex-col justify-between p-4 relative">
+            
+            <!-- Header Ribbon -->
+            <div class="ribbon-yellow py-1 px-4 text-center font-extrabold text-amber-950 text-xl tracking-wide uppercase shadow-md -mx-4 -mt-4 mb-4">
+                Puzzle Select
+            </div>
+
+            <!-- Central Preview & Upload Area -->
+            <div class="flex-1 flex flex-col items-center justify-center space-y-4 my-2">
+                <div class="relative group">
+                    <!-- Image Preview Frame -->
+                    <div id="preview-frame" class="w-64 h-48 sm:w-72 sm:h-52 bg-gray-800 rounded-lg border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80');">
+                        <div id="upload-overlay" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
+                            <i class="fas fa-camera text-3xl text-white mb-1"></i>
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">Change Photo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <span id="photo-label" class="text-xs text-amber-950 font-black uppercase tracking-wider bg-amber-200/80 px-3 py-0.5 rounded-full border border-amber-400">Default Photo</span>
+            </div>
+
+            <!-- Piece Selection Buttons Row (3DS Style) -->
+            <div class="grid grid-cols-4 gap-2 sm:gap-3 my-4 px-2">
+                <button onclick="selectPieceCount(6, this)" class="btn-3ds-piece btn-3ds text-white py-3 px-1 rounded-lg flex flex-col items-center justify-center font-bold">
+                    <span class="text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">6</span>
+                </button>
+                <button onclick="selectPieceCount(12, this)" class="btn-3ds-piece btn-3ds text-white py-3 px-1 rounded-lg flex flex-col items-center justify-center font-bold">
+                    <span class="text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">12</span>
+                </button>
+                <button onclick="selectPieceCount(24, this)" class="btn-3ds-piece btn-3ds text-white py-3 px-1 rounded-lg flex flex-col items-center justify-center font-bold">
+                    <span class="text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">24</span>
+                </button>
+                <button onclick="selectPieceCount(192, this)" class="btn-3ds-piece btn-3ds-white text-gray-900 py-3 px-1 rounded-lg flex flex-col items-center justify-center font-bold">
+                    <span class="text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">192</span>
+                </button>
+            </div>
+
+            <!-- Bottom Menu Panel -->
+            <div class="grid grid-cols-2 gap-0 -mb-4 -mx-4 border-t-2 border-amber-900/40">
+                <button onclick="presetPhotoToggle()" class="btn-3ds py-3 text-center text-sm font-bold text-amber-100 flex items-center justify-center space-x-2 border-r border-amber-900/50">
+                    <i class="fas fa-images"></i>
+                    <span>Preset Photos</span>
+                </button>
+                
+                <!-- File Input for Custom Upload -->
+                <label for="image-upload" class="btn-3ds py-3 text-center text-sm font-bold text-amber-100 flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload Photo</span>
+                    <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                </label>
+            </div>
+        </div>
+
+        <!-- ================= PUZZLE GAME SCREEN ================= -->
+        <div id="game-screen" class="cork-bg flex-1 flex-col justify-between p-3 hidden relative">
+            
+            <!-- Stopwatch Top Header Bar -->
+            <div class="flex flex-col items-center mb-2">
+                <div class="bg-gradient-to-b from-gray-800 to-black px-6 py-1.5 rounded-full border-2 border-amber-500/60 shadow-lg flex items-center space-x-3">
+                    <i class="fas fa-stopwatch text-amber-400 text-lg animate-pulse"></i>
+                    <div id="stopwatch-display" class="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-wider">
+                        00:00:00.<span class="text-sm">000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Puzzle Main Grid Area -->
+            <div class="flex-1 flex items-center justify-center my-1 relative">
+                <!-- Board Frame -->
+                <div id="puzzle-board-container" class="relative p-2 bg-amber-950/40 rounded-xl border-4 border-amber-900/60 shadow-2xl backdrop-blur-sm">
+                    <div id="puzzle-grid" class="relative bg-black/40 rounded border border-amber-700/50 overflow-hidden shadow-inner grid gap-0">
+                        <!-- Grid cells and draggable piece tiles injected via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Tracker -->
+            <div class="text-center my-1">
+                <span id="progress-text" class="text-xs font-black text-amber-950 uppercase tracking-widest bg-amber-200/90 px-3 py-1 rounded-full border border-amber-400">
+                    Solved: 0 / 0
+                </span>
+            </div>
+
+            <!-- Bottom Gameplay Controls Panel (Separated full 3DS metallic buttons) -->
+            <div class="grid grid-cols-6 gap-0 -mb-3 -mx-3 mt-2 border-t-2 border-amber-900/40 shadow-2xl z-10">
+                <!-- Back Button -->
+                <button onclick="returnToMenu()" class="btn-3ds py-3 text-center text-xs sm:text-sm font-bold text-amber-100 flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-1 border-r border-amber-900/50" title="Back to Menu">
+                    <i class="fas fa-chevron-left text-xs mb-0.5 sm:mb-0"></i>
+                    <span>Back</span>
+                </button>
+
+                <!-- Left Arrow -->
+                <button onclick="shiftGrid('left')" class="btn-3ds py-3 text-center text-sm font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Left">
+                    <i class="fas fa-arrow-left text-base"></i>
+                </button>
+
+                <!-- Up Arrow -->
+                <button onclick="shiftGrid('up')" class="btn-3ds py-3 text-center text-sm font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Up">
+                    <i class="fas fa-arrow-up text-base"></i>
+                </button>
+
+                <!-- Down Arrow -->
+                <button onclick="shiftGrid('down')" class="btn-3ds py-3 text-center text-sm font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Down">
+                    <i class="fas fa-arrow-down text-base"></i>
+                </button>
+
+                <!-- Right Arrow -->
+                <button onclick="shiftGrid('right')" class="btn-3ds py-3 text-center text-sm font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Right">
+                    <i class="fas fa-arrow-right text-base"></i>
+                </button>
+
+                <!-- Cheat Button -->
+                <button onclick="toggleHintModal()" class="btn-3ds py-3 text-center text-xs sm:text-sm font-bold text-amber-200 flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-1" title="View Original Image">
+                    <i class="fas fa-eye text-xs mb-0.5 sm:mb-0"></i>
+                    <span>Cheat</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= RESULTS MODAL ================= -->
+        <div id="results-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+            <div class="bg-stone-900 border-4 border-amber-500 rounded-2xl max-w-md w-full p-6 text-center shadow-2xl relative transform transition-all scale-95 opacity-0" id="results-card">
+                <div class="w-16 h-16 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-amber-400 text-3xl">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2 class="text-2xl font-black text-amber-300 uppercase tracking-wide heading-font">Puzzle Cleared!</h2>
+                <p class="text-stone-300 text-sm mt-1 mb-4">Fantastic work! You completed the puzzle in:</p>
+
+                <div class="bg-stone-950 p-4 rounded-xl border border-stone-800 mb-6">
+                    <div id="final-time-display" class="font-mono text-3xl font-black text-amber-400">
+                        00:00:00.000
+                    </div>
+                    <div class="text-xs text-stone-400 mt-1 uppercase font-bold" id="final-piece-count">Pieces: 12</div>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button onclick="restartPuzzle()" class="flex-1 btn-3ds py-3 rounded-xl font-bold text-amber-100 text-sm">
+                        <i class="fas fa-redo mr-2"></i>Play Again
+                    </button>
+                    <button onclick="returnToMenu()" class="flex-1 btn-3ds-white py-3 rounded-xl font-bold text-gray-900 text-sm">
+                        <i class="fas fa-th-large mr-2"></i>Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHEAT / FULL PHOTO MODAL -->
+        <div id="hint-modal" class="fixed inset-0 bg-black/75 z-40 flex items-center justify-center hidden p-4" onclick="toggleHintModal()">
+            <div class="relative bg-stone-900 border-2 border-white p-2 rounded-xl max-w-sm w-full">
+                <p class="text-xs text-center font-bold text-amber-300 mb-2">Original Image Reference</p>
+                <img id="hint-image" src="" alt="Reference" class="w-full h-auto rounded border border-stone-700">
+                <p class="text-[10px] text-center text-stone-400 mt-2">Tap anywhere to close</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedPieces = 12; // Default pieces selection
+        let gridCols = 4;
+        let gridRows = 3;
+
+        // Preset photos array
+        const presetPhotos = [
+            'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80', // Purple flower
+            'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80', // Mountain landscape
+            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80', // Beach sunset
+            'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80'  // Forest trees
+        ];
+        let currentPhotoIndex = 0;
+        let currentPhotoUrl = presetPhotos[0];
+
+        // Board State Representation
+        let gridState = [];
+        let solvedCount = 0;
+
+        // Timer Variables
+        let startTime = 0;
+        let timerInterval = null;
+        let elapsedTime = 0;
+        let isGameRunning = false;
+        let isShuffling = false;
+
+        // Drag and Drop Variables
+        let draggedPieceId = null;
+        let draggedFromIndex = null;
+
+        // Soundtrack Audio Elements & Loops
+        const audioMenu = new Audio('https://archive.org/download/wii-photo-channel-soundtrack/03%20SD%20Card%20Gallery.mp3');
+        const audioPuzzle = new Audio('https://archive.org/download/wii-photo-channel-soundtrack/09%20Puzzle.mp3');
+        const audioWin = new Audio('https://archive.org/download/wii-photo-channel-soundtrack/10%20Puzzle%20Completed.mp3');
+
+        audioMenu.preload = 'auto';
+        audioPuzzle.preload = 'auto';
+        audioWin.preload = 'auto';
+
+        let menuLoopMonitor = null;
+        let puzzleLoopMonitor = null;
+
+        function startMenuMusic() {
+            stopAllMusic();
+            audioMenu.currentTime = 0;
+            audioMenu.play().catch(() => {});
+
+            menuLoopMonitor = setInterval(() => {
+                if (audioMenu.currentTime >= 68) { // 1:10 loop point (70)
+                    audioMenu.currentTime = 0;
+                }
+            }, 100);
+        }
+
+        function startPuzzleMusic() {
+            stopAllMusic();
+            audioPuzzle.currentTime = 0;
+            audioPuzzle.play().catch(() => {});
+
+            puzzleLoopMonitor = setInterval(() => {
+                if (audioPuzzle.currentTime >= 144) { // 2:26 loop point back to 1:14 (74s) (146)
+                    audioPuzzle.currentTime = 74;
+                }
+            }, 100);
+        }
+
+        function playWinMusic() {
+            stopAllMusic();
+            audioWin.currentTime = 0;
+            audioWin.play().catch(() => {});
+        }
+
+        function stopAllMusic() {
+            if (menuLoopMonitor) clearInterval(menuLoopMonitor);
+            if (puzzleLoopMonitor) clearInterval(puzzleLoopMonitor);
+
+            audioMenu.pause();
+            audioPuzzle.pause();
+            audioWin.pause();
+        }
+
+        function selectPieceCount(count, btnElement) {
+            initAudio();
+            selectedPieces = count;
+
+            // Configure aspect ratios for clean grid divisions
+            if (count === 6) {
+                gridCols = 3; gridRows = 2;
+            } else if (count === 12) {
+                gridCols = 4; gridRows = 3;
+            } else if (count === 24) {
+                gridCols = 6; gridRows = 4;
+            } else if (count === 192) {
+                gridCols = 16; gridRows = 12;
+            }
+
+            startPuzzleGame();
+        }
+
+        function presetPhotoToggle() {
+            initAudio();
+            currentPhotoIndex = (currentPhotoIndex + 1) % presetPhotos.length;
+            currentPhotoUrl = presetPhotos[currentPhotoIndex];
+            
+            document.getElementById('preview-frame').style.backgroundImage = `url('${currentPhotoUrl}')`;
+            document.getElementById('photo-label').textContent = `Preset Photo #${currentPhotoIndex + 1}`;
+        }
+
+        function handleImageUpload(event) {
+            initAudio();
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhotoUrl = e.target.result;
+                    document.getElementById('preview-frame').style.backgroundImage = `url('${currentPhotoUrl}')`;
+                    document.getElementById('photo-label').textContent = "Custom Photo";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function startPuzzleGame() {
+            resetStopwatch();
+            isShuffling = true;
+            
+            const totalCells = gridCols * gridRows;
+            // Start with solved state (full solved image aligned)
+            gridState = Array.from({ length: totalCells }, (_, i) => i);
+
+            // Set up cheat/reference image
+            document.getElementById('hint-image').src = currentPhotoUrl;
+
+            // Switch Screen Views with Zoom Animation
+            document.getElementById('menu-screen').classList.add('hidden');
+            const gameScreen = document.getElementById('game-screen');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+
+            startPuzzleMusic();
+
+            const boardContainer = document.getElementById('puzzle-board-container');
+            boardContainer.classList.remove('zoom-intro');
+            void boardContainer.offsetWidth; // Trigger reflow
+            boardContainer.classList.add('zoom-intro');
+
+            renderBoard();
+
+            // After zoom intro, perform animated visual glide shuffling
+            setTimeout(() => {
+                animateGlideShuffle(() => {
+                    isShuffling = false;
+                    renderBoard();
+                    startStopwatch();
+                });
+            }, 600);
+        }
+
+        // Gliding Shuffle FX: Calculates pixel offsets and translates elements visually to target slots before updating grid state
+        function animateGlideShuffle(callback) {
+            const totalCells = gridCols * gridRows;
+
+            // Pre-generate target scrambled array ensuring no piece remains in place
+            let targetShuffle = Array.from({ length: totalCells }, (_, i) => i);
+            do {
+                for (let i = targetShuffle.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [targetShuffle[i], targetShuffle[j]] = [targetShuffle[j], targetShuffle[i]];
+                }
+            } while (targetShuffle.every((val, idx) => val === idx));
+
+            let step = 0;
+            // Fast step duration
+            const durationPerStep = Math.max(12, Math.min(60, Math.floor(600 / totalCells)));
+
+            function executeStep() {
+                if (step >= totalCells) {
+                    gridState = [...targetShuffle];
+                    callback();
+                    return;
+                }
+
+                const targetIdx = step;
+                const targetPieceVal = targetShuffle[targetIdx];
+                const currentIdx = gridState.indexOf(targetPieceVal);
+
+                if (currentIdx !== targetIdx && currentIdx !== -1) {
+                    const cells = document.querySelectorAll('.puzzle-cell');
+                    const sourceCell = cells[currentIdx];
+                    const destCell = cells[targetIdx];
+
+                    if (sourceCell && destCell) {
+                        const sourcePiece = sourceCell.querySelector('.puzzle-piece');
+                        const destPiece = destCell.querySelector('.puzzle-piece');
+
+                        const sourceRect = sourceCell.getBoundingClientRect();
+                        const destRect = destCell.getBoundingClientRect();
+
+                        const dx = destRect.left - sourceRect.left;
+                        const dy = destRect.top - sourceRect.top;
+
+                        if (sourcePiece) {
+                            sourceCell.classList.add('elevated-cell');
+                            sourcePiece.classList.add('shuffling-piece');
+                            sourcePiece.style.transform = `translate(${dx}px, ${dy}px)`;
+                        }
+
+                        if (destPiece) {
+                            destCell.classList.add('elevated-cell');
+                            destPiece.classList.add('shuffling-piece');
+                            destPiece.style.transform = `translate(${-dx}px, ${-dy}px)`;
+                        }
+
+                        setTimeout(() => {
+                            // Reset elevated z-index styling on parent cells
+                            sourceCell.classList.remove('elevated-cell');
+                            destCell.classList.remove('elevated-cell');
+                            
+                            // Swap grid values after glide transition finishes
+                            [gridState[currentIdx], gridState[targetIdx]] = [gridState[targetIdx], gridState[currentIdx]];
+                            renderBoard();
+                            step++;
+                            executeStep();
+                        }, durationPerStep);
+                    } else {
+                        step++;
+                        executeStep();
+                    }
+                } else {
+                    step++;
+                    executeStep();
+                }
+            }
+
+            executeStep();
+        }
+
+        function renderBoard() {
+            const gridContainer = document.getElementById('puzzle-grid');
+            gridContainer.innerHTML = '';
+
+            // Compute responsive cell sizing
+            const containerWidth = Math.min(window.innerWidth - 32, 540);
+            const cellSize = Math.floor(containerWidth / gridCols);
+            const boardWidth = cellSize * gridCols;
+            const boardHeight = cellSize * gridRows;
+
+            gridContainer.style.width = `${boardWidth}px`;
+            gridContainer.style.height = `${boardHeight}px`;
+            gridContainer.style.gridTemplateColumns = `repeat(${gridCols}, ${cellSize}px)`;
+            gridContainer.style.gridTemplateRows = `repeat(${gridRows}, ${cellSize}px)`;
+
+            solvedCount = 0;
+            const totalCells = gridCols * gridRows;
+
+            gridState.forEach((pieceVal, slotIndex) => {
+                const isCorrect = (pieceVal === slotIndex);
+                if (isCorrect) solvedCount++;
+
+                const cell = document.createElement('div');
+                cell.className = `puzzle-cell relative overflow-hidden bg-black/20 ${isCorrect ? 'border-none' : 'border border-amber-900/30'}`;
+                cell.style.width = `${cellSize}px`;
+                cell.style.height = `${cellSize}px`;
+                cell.dataset.slotIndex = slotIndex;
+
+                // Drag and Drop Event Listeners for Slot
+                cell.ondragover = (e) => { e.preventDefault(); cell.classList.add('drag-over-slot'); };
+                cell.ondragleave = () => cell.classList.remove('drag-over-slot');
+                cell.ondrop = (e) => handleDrop(e, slotIndex);
+
+                if (pieceVal !== null) {
+                    const piece = document.createElement('div');
+                    piece.className = 'puzzle-piece shadow-md';
+                    piece.draggable = !isShuffling;
+                    piece.dataset.pieceVal = pieceVal;
+
+                    // Compute background slice position
+                    const origCol = pieceVal % gridCols;
+                    const origRow = Math.floor(pieceVal / gridCols);
+
+                    piece.style.backgroundImage = `url('${currentPhotoUrl}')`;
+                    piece.style.backgroundSize = `${boardWidth}px ${boardHeight}px`;
+                    piece.style.backgroundPosition = `${origCol * -cellSize}px ${origRow * -cellSize}px`;
+
+                    piece.ondragstart = (e) => handleDragStart(e, pieceVal, slotIndex);
+
+                    // Touch event handlers for mobile devices
+                    piece.ontouchstart = (e) => handleTouchStart(e, pieceVal, slotIndex);
+
+                    cell.appendChild(piece);
+                }
+
+                gridContainer.appendChild(cell);
+            });
+
+            // Update Progress Display
+            document.getElementById('progress-text').textContent = `Solved: ${solvedCount} / ${totalCells}`;
+
+            // Check Win Condition
+            if (solvedCount === totalCells && isGameRunning && !isShuffling) {
+                stopStopwatch();
+                setTimeout(() => showResultsModal(), 300);
+            }
+        }
+
+        function handleDragStart(e, pieceVal, slotIndex) {
+            if (isShuffling) return;
+            draggedPieceId = pieceVal;
+            draggedFromIndex = slotIndex;
+            if (e.dataTransfer) {
+                e.dataTransfer.setData('text/plain', pieceVal);
+            }
+        }
+
+        function handleDrop(e, targetSlotIndex) {
+            e.preventDefault();
+            document.querySelectorAll('.puzzle-cell').forEach(c => c.classList.remove('drag-over-slot'));
+
+            if (draggedFromIndex !== null && draggedFromIndex !== targetSlotIndex) {
+                swapPieces(draggedFromIndex, targetSlotIndex);
+            }
+        }
+
+        // Mobile Touch Support
+        let activeTouchPiece = null;
+        let touchStartPos = { x: 0, y: 0 };
+
+        function handleTouchStart(e, pieceVal, slotIndex) {
+            if (isShuffling) return;
+            const touch = e.touches[0];
+            draggedPieceId = pieceVal;
+            draggedFromIndex = slotIndex;
+            activeTouchPiece = e.currentTarget;
+            touchStartPos = { x: touch.clientX, y: touch.clientY };
+
+            document.ontouchmove = handleTouchMove;
+            document.ontouchend = handleTouchEnd;
+        }
+
+        function handleTouchMove(e) {
+            if (!activeTouchPiece) return;
+            const touch = e.touches[0];
+            const dx = touch.clientX - touchStartPos.x;
+            const dy = touch.clientY - touchStartPos.y;
+            activeTouchPiece.style.transform = `translate(${dx}px, ${dy}px)`;
+            activeTouchPiece.style.zIndex = '100';
+        }
+
+        function handleTouchEnd(e) {
+            if (!activeTouchPiece) return;
+            const touch = e.changedTouches[0];
+            activeTouchPiece.style.transform = '';
+            activeTouchPiece.style.zIndex = '';
+
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetCell = dropTarget ? dropTarget.closest('.puzzle-cell') : null;
+
+            if (targetCell) {
+                const targetSlotIndex = parseInt(targetCell.dataset.slotIndex);
+                if (!isNaN(targetSlotIndex) && targetSlotIndex !== draggedFromIndex) {
+                    swapPieces(draggedFromIndex, targetSlotIndex);
+                }
+            }
+
+            activeTouchPiece = null;
+            document.ontouchmove = null;
+            document.ontouchend = null;
+        }
+
+        function swapPieces(fromIdx, toIdx) {
+            [gridState[fromIdx], gridState[toIdx]] = [gridState[toIdx], gridState[fromIdx]];
+
+            renderBoard();
+
+            // Check if swapped piece snapped correctly
+            if (gridState[toIdx] === toIdx) {
+                const targetCell = document.querySelectorAll('.puzzle-cell')[toIdx];
+                if (targetCell) {
+                    targetCell.classList.add('snap-animation');
+                    setTimeout(() => targetCell.classList.remove('snap-animation'), 350);
+                }
+            }
+        }
+
+        function shiftGrid(direction) {
+            if (isShuffling || !isGameRunning) return;
+
+            let newGrid = [...gridState];
+
+            if (direction === 'left') {
+                for (let r = 0; r < gridRows; r++) {
+                    const rowVals = [];
+                    for (let c = 0; c < gridCols; c++) rowVals.push(newGrid[r * gridCols + c]);
+                    rowVals.push(rowVals.shift()); // Shift Left
+                    for (let c = 0; c < gridCols; c++) newGrid[r * gridCols + c] = rowVals[c];
+                }
+            } else if (direction === 'right') {
+                for (let r = 0; r < gridRows; r++) {
+                    const rowVals = [];
+                    for (let c = 0; c < gridCols; c++) rowVals.push(newGrid[r * gridCols + c]);
+                    rowVals.unshift(rowVals.pop()); // Shift Right
+                    for (let c = 0; c < gridCols; c++) newGrid[r * gridCols + c] = rowVals[c];
+                }
+            } else if (direction === 'up') {
+                for (let c = 0; c < gridCols; c++) {
+                    const colVals = [];
+                    for (let r = 0; r < gridRows; r++) colVals.push(newGrid[r * gridCols + c]);
+                    colVals.push(colVals.shift()); // Shift Up
+                    for (let r = 0; r < gridRows; r++) newGrid[r * gridCols + c] = colVals[r];
+                }
+            } else if (direction === 'down') {
+                for (let c = 0; c < gridCols; c++) {
+                    const colVals = [];
+                    for (let r = 0; r < gridRows; r++) colVals.push(newGrid[r * gridCols + c]);
+                    colVals.unshift(colVals.pop()); // Shift Down
+                    for (let r = 0; r < gridRows; r++) newGrid[r * gridCols + c] = colVals[r];
+                }
+            }
+
+            gridState = newGrid;
+            renderBoard();
+        }
+
+        function startStopwatch() {
+            startTime = Date.now() - elapsedTime;
+            isGameRunning = true;
+            timerInterval = setInterval(updateStopwatchDisplay, 10);
+        }
+
+        function stopStopwatch() {
+            isGameRunning = false;
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function resetStopwatch() {
+            stopStopwatch();
+            elapsedTime = 0;
+            updateStopwatchDisplay();
+        }
+
+        function updateStopwatchDisplay() {
+            if (isGameRunning) {
+                elapsedTime = Date.now() - startTime;
+            }
+            document.getElementById('stopwatch-display').innerHTML = getFormattedTimeText(elapsedTime);
+        }
+
+        function getFormattedTimeText(ms) {
+            const hours = Math.floor(ms / 3600000);
+            const minutes = Math.floor((ms % 3600000) / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            const milliseconds = ms % 1000;
+
+            const pad = (n, z = 2) => ('00' + n).slice(-z);
+            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.<span class="text-sm">${pad(milliseconds, 3)}</span>`;
+        }
+
+        function initAudio() {
+            if (audioMenu.paused && document.getElementById('menu-screen').classList.contains('hidden') === false) {
+                startMenuMusic();
+            }
+        }
+
+        function showResultsModal() {
+            playWinMusic();
+            const modal = document.getElementById('results-modal');
+            const card = document.getElementById('results-card');
+
+            document.getElementById('final-time-display').innerHTML = getFormattedTimeText(elapsedTime);
+            document.getElementById('final-piece-count').textContent = `Total Pieces Cleared: ${gridCols * gridRows}`;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function restartPuzzle() {
+            const modal = document.getElementById('results-modal');
+            modal.classList.add('hidden');
+            startPuzzleGame();
+        }
+
+        function returnToMenu() {
+            stopStopwatch();
+            isShuffling = false;
+            document.getElementById('results-modal').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('flex');
+            document.getElementById('menu-screen').classList.remove('hidden');
+            startMenuMusic();
+        }
+
+        function toggleHintModal() {
+            const modal = document.getElementById('hint-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Add user interaction listener to initiate background music
+        window.addEventListener('click', initAudio, { once: true });
+
+        // Window resize re-calculation for responsive grids
+        window.addEventListener('resize', () => {
+            if (isGameRunning || isShuffling) {
+                renderBoard();
+            }
+        });
+    </script>
+</body>
+</html>
