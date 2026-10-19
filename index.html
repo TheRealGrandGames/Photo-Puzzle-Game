@@ -139,13 +139,13 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-2 sm:p-4 select-none">
 
-    <div id="game-container" class="relative w-full max-w-2xl bg-black rounded-xl overflow-hidden shadow-2xl border-4 border-gray-700 flex flex-col justify-between" style="min-height: 580px;">
+    <div id="game-container" class="relative w-full max-w-5xl h-[92vh] max-h-[850px] bg-black rounded-xl overflow-hidden shadow-2xl border-4 border-gray-700 flex flex-col justify-between">
 
         <!-- ================= MAIN MENU SCREEN ================= -->
-        <div id="menu-screen" class="cork-bg flex-1 flex flex-col justify-between p-4 relative">
+        <div id="menu-screen" class="cork-bg flex-1 flex flex-col justify-between p-4 sm:p-6 relative">
             
             <!-- Header Ribbon -->
-            <div class="ribbon-yellow py-1 px-4 text-center font-extrabold text-amber-950 text-xl tracking-wide uppercase shadow-md -mx-4 -mt-4 mb-4">
+            <div class="ribbon-yellow py-2 px-4 text-center font-extrabold text-amber-950 text-2xl sm:text-3xl tracking-wide uppercase shadow-md -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 mb-4">
                 Puzzle Select
             </div>
 
@@ -153,47 +153,47 @@
             <div class="flex-1 flex flex-col items-center justify-center space-y-4 my-2">
                 <div class="relative group">
                     <!-- Image Preview Frame -->
-                    <div id="preview-frame" class="w-64 h-48 sm:w-72 sm:h-52 bg-gray-800 rounded-lg border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80');">
+                    <div id="preview-frame" class="w-80 h-60 sm:w-[420px] sm:h-[315px] md:w-[500px] md:h-[375px] bg-gray-800 rounded-lg border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80');">
                         <div id="upload-overlay" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
-                            <i class="fas fa-camera text-3xl text-white mb-1"></i>
-                            <span class="text-xs font-bold text-white uppercase tracking-wider">Change Photo</span>
+                            <i class="fas fa-camera text-4xl text-white mb-2"></i>
+                            <span class="text-sm font-bold text-white uppercase tracking-wider">Change Photo</span>
                         </div>
                     </div>
                 </div>
 
-                <span id="photo-label" class="text-xs text-amber-950 font-black uppercase tracking-wider bg-amber-200/80 px-3 py-0.5 rounded-full border border-amber-400">Default Photo</span>
+                <span id="photo-label" class="text-sm text-amber-950 font-black uppercase tracking-wider bg-amber-200/80 px-4 py-1 rounded-full border border-amber-400">Default Photo</span>
             </div>
 
             <!-- Piece Selection Buttons Row (3DS Style) -->
-            <div class="grid grid-cols-4 gap-2 sm:gap-3 my-4 px-2">
-                <button onclick="selectPieceCount(6, this)" class="btn-3ds-piece btn-3ds text-white py-3 px-1 rounded-lg flex flex-col items-center justify-center font-bold">
-                    <span class="text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">6</span>
+            <div class="grid grid-cols-4 gap-3 sm:gap-4 my-4 px-2 sm:px-6">
+                <button onclick="selectPieceCount(6, this)" class="btn-3ds-piece btn-3ds text-white py-4 px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-xs sm:text-sm uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-3xl sm:text-4xl heading-font leading-none">6</span>
                 </button>
-                <button onclick="selectPieceCount(12, this)" class="btn-3ds-piece btn-3ds text-white py-3 px-1 rounded-lg flex flex-col items-center justify-center font-bold">
-                    <span class="text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">12</span>
+                <button onclick="selectPieceCount(12, this)" class="btn-3ds-piece btn-3ds text-white py-4 px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-xs sm:text-sm uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-3xl sm:text-4xl heading-font leading-none">12</span>
                 </button>
-                <button onclick="selectPieceCount(24, this)" class="btn-3ds-piece btn-3ds text-white py-3 px-1 rounded-lg flex flex-col items-center justify-center font-bold">
-                    <span class="text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">24</span>
+                <button onclick="selectPieceCount(24, this)" class="btn-3ds-piece btn-3ds text-white py-4 px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-xs sm:text-sm uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-3xl sm:text-4xl heading-font leading-none">24</span>
                 </button>
-                <button onclick="selectPieceCount(192, this)" class="btn-3ds-piece btn-3ds-white text-gray-900 py-3 px-1 rounded-lg flex flex-col items-center justify-center font-bold">
-                    <span class="text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">192</span>
+                <button onclick="selectPieceCount(192, this)" class="btn-3ds-piece btn-3ds-white text-gray-900 py-4 px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-xs sm:text-sm uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-3xl sm:text-4xl heading-font leading-none">192</span>
                 </button>
             </div>
 
             <!-- Bottom Menu Panel -->
-            <div class="grid grid-cols-2 gap-0 -mb-4 -mx-4 border-t-2 border-amber-900/40">
-                <button onclick="presetPhotoToggle()" class="btn-3ds py-3 text-center text-sm font-bold text-amber-100 flex items-center justify-center space-x-2 border-r border-amber-900/50">
-                    <i class="fas fa-images"></i>
+            <div class="grid grid-cols-2 gap-0 -mb-4 sm:-mb-6 -mx-4 sm:-mx-6 border-t-2 border-amber-900/40">
+                <button onclick="presetPhotoToggle()" class="btn-3ds py-4 text-center text-base sm:text-lg font-bold text-amber-100 flex items-center justify-center space-x-2 border-r border-amber-900/50">
+                    <i class="fas fa-images text-lg"></i>
                     <span>Preset Photos</span>
                 </button>
                 
                 <!-- File Input for Custom Upload -->
-                <label for="image-upload" class="btn-3ds py-3 text-center text-sm font-bold text-amber-100 flex items-center justify-center space-x-2 cursor-pointer">
-                    <i class="fas fa-upload"></i>
+                <label for="image-upload" class="btn-3ds py-4 text-center text-base sm:text-lg font-bold text-amber-100 flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fas fa-upload text-lg"></i>
                     <span>Upload Photo</span>
                     <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
                 </label>
@@ -201,20 +201,20 @@
         </div>
 
         <!-- ================= PUZZLE GAME SCREEN ================= -->
-        <div id="game-screen" class="cork-bg flex-1 flex-col justify-between p-3 hidden relative">
+        <div id="game-screen" class="cork-bg flex-1 flex-col justify-between p-3 sm:p-5 hidden relative">
             
             <!-- Stopwatch Top Header Bar -->
             <div class="flex flex-col items-center mb-2">
-                <div class="bg-gradient-to-b from-gray-800 to-black px-6 py-1.5 rounded-full border-2 border-amber-500/60 shadow-lg flex items-center space-x-3">
-                    <i class="fas fa-stopwatch text-amber-400 text-lg animate-pulse"></i>
-                    <div id="stopwatch-display" class="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-wider">
-                        00:00:00.<span class="text-sm">000</span>
+                <div class="bg-gradient-to-b from-gray-800 to-black px-8 py-2 rounded-full border-2 border-amber-500/60 shadow-lg flex items-center space-x-3">
+                    <i class="fas fa-stopwatch text-amber-400 text-xl animate-pulse"></i>
+                    <div id="stopwatch-display" class="font-mono text-2xl sm:text-3xl font-black text-amber-300 tracking-wider">
+                        00:00:00.<span class="text-base">000</span>
                     </div>
                 </div>
             </div>
 
             <!-- Puzzle Main Grid Area -->
-            <div class="flex-1 flex items-center justify-center my-1 relative">
+            <div class="flex-1 flex items-center justify-center my-1 relative overflow-hidden">
                 <!-- Board Frame -->
                 <div id="puzzle-board-container" class="relative p-2 bg-amber-950/40 rounded-xl border-4 border-amber-900/60 shadow-2xl backdrop-blur-sm">
                     <div id="puzzle-grid" class="relative bg-black/40 rounded border border-amber-700/50 overflow-hidden shadow-inner grid gap-0">
@@ -225,42 +225,42 @@
 
             <!-- Progress Tracker -->
             <div class="text-center my-1">
-                <span id="progress-text" class="text-xs font-black text-amber-950 uppercase tracking-widest bg-amber-200/90 px-3 py-1 rounded-full border border-amber-400">
+                <span id="progress-text" class="text-xs sm:text-sm font-black text-amber-950 uppercase tracking-widest bg-amber-200/90 px-4 py-1.5 rounded-full border border-amber-400">
                     Solved: 0 / 0
                 </span>
             </div>
 
             <!-- Bottom Gameplay Controls Panel (Separated full 3DS metallic buttons) -->
-            <div class="grid grid-cols-6 gap-0 -mb-3 -mx-3 mt-2 border-t-2 border-amber-900/40 shadow-2xl z-10">
+            <div class="grid grid-cols-6 gap-0 -mb-3 sm:-mb-5 -mx-3 sm:-mx-5 mt-2 border-t-2 border-amber-900/40 shadow-2xl z-10">
                 <!-- Back Button -->
-                <button onclick="returnToMenu()" class="btn-3ds py-3 text-center text-xs sm:text-sm font-bold text-amber-100 flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-1 border-r border-amber-900/50" title="Back to Menu">
-                    <i class="fas fa-chevron-left text-xs mb-0.5 sm:mb-0"></i>
+                <button onclick="returnToMenu()" class="btn-3ds py-3 sm:py-4 text-center text-xs sm:text-base font-bold text-amber-100 flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-1 border-r border-amber-900/50" title="Back to Menu">
+                    <i class="fas fa-chevron-left text-xs sm:text-sm mb-0.5 sm:mb-0"></i>
                     <span>Back</span>
                 </button>
 
                 <!-- Left Arrow -->
-                <button onclick="shiftGrid('left')" class="btn-3ds py-3 text-center text-sm font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Left">
-                    <i class="fas fa-arrow-left text-base"></i>
+                <button onclick="shiftGrid('left')" class="btn-3ds py-3 sm:py-4 text-center text-base sm:text-xl font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Left">
+                    <i class="fas fa-arrow-left"></i>
                 </button>
 
                 <!-- Up Arrow -->
-                <button onclick="shiftGrid('up')" class="btn-3ds py-3 text-center text-sm font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Up">
-                    <i class="fas fa-arrow-up text-base"></i>
+                <button onclick="shiftGrid('up')" class="btn-3ds py-3 sm:py-4 text-center text-base sm:text-xl font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Up">
+                    <i class="fas fa-arrow-up"></i>
                 </button>
 
                 <!-- Down Arrow -->
-                <button onclick="shiftGrid('down')" class="btn-3ds py-3 text-center text-sm font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Down">
-                    <i class="fas fa-arrow-down text-base"></i>
+                <button onclick="shiftGrid('down')" class="btn-3ds py-3 sm:py-4 text-center text-base sm:text-xl font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Down">
+                    <i class="fas fa-arrow-down"></i>
                 </button>
 
                 <!-- Right Arrow -->
-                <button onclick="shiftGrid('right')" class="btn-3ds py-3 text-center text-sm font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Right">
-                    <i class="fas fa-arrow-right text-base"></i>
+                <button onclick="shiftGrid('right')" class="btn-3ds py-3 sm:py-4 text-center text-base sm:text-xl font-bold text-amber-300 flex items-center justify-center border-r border-amber-900/50" title="Shift Right">
+                    <i class="fas fa-arrow-right"></i>
                 </button>
 
                 <!-- Cheat Button -->
-                <button onclick="toggleHintModal()" class="btn-3ds py-3 text-center text-xs sm:text-sm font-bold text-amber-200 flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-1" title="View Original Image">
-                    <i class="fas fa-eye text-xs mb-0.5 sm:mb-0"></i>
+                <button onclick="toggleHintModal()" class="btn-3ds py-3 sm:py-4 text-center text-xs sm:text-base font-bold text-amber-200 flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-1" title="View Original Image">
+                    <i class="fas fa-eye text-xs sm:text-sm mb-0.5 sm:mb-0"></i>
                     <span>Cheat</span>
                 </button>
             </div>
@@ -545,9 +545,16 @@
             const gridContainer = document.getElementById('puzzle-grid');
             gridContainer.innerHTML = '';
 
-            // Compute responsive cell sizing
-            const containerWidth = Math.min(window.innerWidth - 32, 540);
-            const cellSize = Math.floor(containerWidth / gridCols);
+            // Compute responsive cell sizing dynamically based on screen space
+            const boardContainer = document.getElementById('puzzle-board-container').parentElement;
+            const maxWidth = Math.min(boardContainer.clientWidth - 32, 800);
+            const maxHeight = Math.min(boardContainer.clientHeight - 32, 550);
+
+            // Compute ideal cell size respecting grid proportions
+            const cellSizeByWidth = maxWidth / gridCols;
+            const cellSizeByHeight = maxHeight / gridRows;
+            const cellSize = Math.max(16, Math.floor(Math.min(cellSizeByWidth, cellSizeByHeight)));
+
             const boardWidth = cellSize * gridCols;
             const boardHeight = cellSize * gridRows;
 
