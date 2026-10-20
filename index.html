@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ... existing code ... -->
     <title>Photo Puzzle Game</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -152,8 +148,15 @@
         <div id="menu-screen" class="cork-bg flex-1 flex flex-col justify-between p-4 sm:p-6 relative">
             
             <!-- Header Ribbon -->
-            <div class="ribbon-yellow py-2 px-4 text-center font-extrabold text-amber-950 text-2xl sm:text-3xl tracking-wide uppercase shadow-md -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 mb-4">
-                Puzzle Select
+            <div class="ribbon-yellow py-2 px-4 text-center font-extrabold text-amber-950 text-2xl sm:text-3xl tracking-wide uppercase shadow-md -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 mb-4 flex items-center justify-between">
+                <span class="w-1/4"></span>
+                <span class="w-1/2 text-center">Puzzle Select</span>
+                <div class="w-1/4 flex justify-end">
+                    <button onclick="openLobbyModal()" class="btn-3ds-white text-xs px-3 py-1 rounded-lg uppercase tracking-wider font-extrabold flex items-center space-x-1">
+                        <i class="fas fa-users text-amber-600"></i>
+                        <span>Multiplayer</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Central Preview & Upload Area -->
@@ -211,16 +214,87 @@
             </div>
         </div>
 
+        <!-- ================= MULTIPLAYER LOBBY MODAL ================= -->
+        <div id="lobby-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+            <div class="bg-stone-900 border-4 border-amber-500 rounded-2xl max-w-md w-full p-6 text-center shadow-2xl relative">
+                <button onclick="closeLobbyModal()" class="absolute top-3 right-3 text-amber-400 hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <h2 class="text-2xl font-black text-amber-300 uppercase tracking-wide heading-font mb-4">Online Multiplayer</h2>
+
+                <!-- Choice standard menu vs inside room -->
+                <div id="lobby-choice-view">
+                    <div class="space-y-3 mb-4">
+                        <input id="player-name-input" type="text" placeholder="Enter Nickname..." maxlength="12" class="w-full bg-stone-950 text-amber-200 border border-amber-600 rounded-xl px-4 py-2 font-bold focus:outline-none focus:border-amber-400">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button onclick="createRoom()" class="btn-3ds py-3 rounded-xl font-bold text-amber-200 text-sm flex items-center justify-center space-x-2">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Create Lobby</span>
+                        </button>
+                        <button onclick="showJoinInput()" class="btn-3ds-white py-3 rounded-xl font-bold text-gray-900 text-sm flex items-center justify-center space-x-2">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Join Lobby</span>
+                        </button>
+                    </div>
+
+                    <div id="join-input-box" class="hidden space-y-3 pt-2 border-t border-stone-800">
+                        <input id="room-code-input" type="text" placeholder="ENTER 4-LETTER CODE" maxlength="4" class="w-full uppercase text-center bg-stone-950 text-amber-400 border border-amber-500 rounded-xl px-4 py-2 font-mono text-xl font-black tracking-widest focus:outline-none">
+                        <button onclick="joinRoom()" class="w-full btn-3ds py-2.5 rounded-xl font-bold text-amber-200 text-sm">Join Room</button>
+                    </div>
+                </div>
+
+                <!-- Lobby Waiting View -->
+                <div id="lobby-waiting-view" class="hidden flex-col items-center">
+                    <div class="text-xs uppercase font-extrabold text-stone-400 mb-1">Room Code</div>
+                    <div id="room-code-display" onclick="copyRoomCode()" class="font-mono text-3xl font-black text-amber-400 tracking-widest bg-stone-950 border border-amber-500/50 rounded-xl px-6 py-2 cursor-pointer hover:bg-stone-900 mb-4 flex items-center justify-center space-x-2">
+                        <span id="room-code-text">XXXX</span>
+                        <i class="fas fa-copy text-sm text-stone-500"></i>
+                    </div>
+
+                    <div class="w-full text-left mb-2 flex items-center justify-between">
+                        <span class="text-xs font-black text-amber-300 uppercase">Players (<span id="player-count">1</span>/6):</span>
+                    </div>
+
+                    <div id="player-list-container" class="w-full bg-stone-950 rounded-xl p-3 border border-stone-800 space-y-2 mb-4 max-h-48 overflow-y-auto">
+                        <!-- Dynamic player list -->
+                    </div>
+
+                    <div id="host-controls" class="w-full space-y-2 hidden">
+                        <div class="text-xs text-amber-200/70 font-semibold mb-2">Configure settings on main menu, then start!</div>
+                        <button onclick="hostStartGame()" class="w-full btn-3ds py-3 rounded-xl font-bold text-amber-200 text-base">
+                            <i class="fas fa-play mr-2"></i>Start Match
+                        </button>
+                    </div>
+                    
+                    <div id="client-waiting-msg" class="text-sm text-amber-300 animate-pulse font-bold my-2 hidden">
+                        Waiting for host to start the game...
+                    </div>
+
+                    <button onclick="leaveRoom()" class="w-full btn-3ds-white py-2 rounded-xl font-bold text-xs mt-2 text-stone-800">
+                        Leave Room
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- ================= PUZZLE GAME SCREEN ================= -->
         <div id="game-screen" class="cork-bg flex-1 flex-col justify-between p-3 sm:p-5 hidden relative">
             
             <!-- Stopwatch Top Header Bar -->
             <div class="flex flex-col items-center mb-2">
-                <div class="bg-gradient-to-b from-gray-800 to-black px-8 py-2 rounded-full border-2 border-amber-500/60 shadow-lg flex items-center space-x-3">
+                <div class="bg-gradient-to-b from-gray-800 to-black px-6 sm:px-8 py-2 rounded-full border-2 border-amber-500/60 shadow-lg flex items-center space-x-3">
                     <i class="fas fa-stopwatch text-amber-400 text-xl animate-pulse"></i>
                     <div id="stopwatch-display" class="font-mono text-2xl sm:text-3xl font-black text-amber-300 tracking-wider">
                         00:00:00.<span class="text-base">000</span>
                     </div>
+                </div>
+
+                <!-- Multiplayer Turn Indicator Banner -->
+                <div id="multiplayer-turn-banner" class="mt-2 hidden bg-amber-950/90 border border-amber-500/70 px-4 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider text-amber-300 shadow-md">
+                    <i class="fas fa-user-circle mr-1 text-amber-400"></i> Turn: <span id="current-turn-player" class="text-white">Player</span>
                 </div>
             </div>
 
@@ -286,10 +360,6 @@
             <div class="flex-1 flex items-center justify-center my-2 max-w-full max-h-[80vh] overflow-hidden">
                 <img id="cheat-image" src="" alt="Reference Cheat" class="max-w-full max-h-[75vh] object-contain rounded-xl border-4 border-amber-400 shadow-2xl" />
             </div>
-
-            <!--<div class="text-xs text-amber-300/80 font-bold uppercase tracking-wider bg-amber-950/80 px-4 py-1 rounded-full border border-amber-500/50">
-                Tap screen to dismiss
-            </div>-->
         </div>
 
         <!-- ================= RESULTS MODAL ================= -->
@@ -334,6 +404,285 @@
 
     </div>
 
+    <!-- Firebase SDK Modules for Multiplayer Synchronization -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global environment bindings with safe fallback
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'photo-puzzle-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyB8_ly25ZGlWRMN6qUMYpdGIKU7hxpiNQs",
+            authDomain: "photo-puzzle-766ee.firebaseapp.com",
+            projectId: "photo-puzzle-766ee",
+            storageBucket: "photo-puzzle-766ee.firebasestorage.app",
+            messagingSenderId: "114720725906",
+            appId: "1:114720725906:web:446d34023f54d686523f4b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let activeRoomId = null;
+        let roomUnsubscribe = null;
+        let isHost = false;
+        let myPlayerIndex = -1;
+        let currentRoomData = null;
+
+        // Auto authenticate on launch
+        async function initMultiplayerAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    const userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+                    currentUser = userCredential.user;
+                } else {
+                    const userCredential = await signInAnonymously(auth);
+                    currentUser = userCredential.user;
+                }
+            } catch (err) {
+                console.warn("Firebase Auth Note: Operating with anonymous fallback", err);
+            }
+        }
+        initMultiplayerAuth();
+
+        // Attach multiplayer functionality to global scope
+        window.mpState = {
+            isMultiplayer: false,
+            activeRoomId: () => activeRoomId,
+            currentUser: () => currentUser,
+            isMyTurn: () => {
+                if (!window.mpState.isMultiplayer || !currentRoomData) return true;
+                return currentRoomData.players[currentRoomData.turnIndex]?.id === currentUser?.uid;
+            }
+        };
+
+        window.openLobbyModal = () => {
+            document.getElementById('lobby-modal').classList.remove('hidden');
+        };
+
+        window.closeLobbyModal = () => {
+            document.getElementById('lobby-modal').classList.add('hidden');
+        };
+
+        window.showJoinInput = () => {
+            document.getElementById('join-input-box').classList.remove('hidden');
+        };
+
+        window.createRoom = async () => {
+            if (!currentUser) await initMultiplayerAuth();
+            const playerName = document.getElementById('player-name-input').value.trim() || `Player_${Math.floor(Math.random()*1000)}`;
+            const roomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
+            
+            const roomDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+
+            const initialRoomState = {
+                code: roomCode,
+                hostId: currentUser.uid,
+                status: 'waiting', // waiting, playing, ended
+                players: [{ id: currentUser.uid, name: playerName }],
+                pieceCount: selectedPieces,
+                photoUrl: currentPhotoUrl,
+                gridState: [],
+                turnIndex: 0,
+                elapsedTime: 0,
+                createdAt: Date.now()
+            };
+
+            await setDoc(roomDocRef, initialRoomState);
+            isHost = true;
+            activeRoomId = roomCode;
+            window.mpState.isMultiplayer = true;
+            subscribeToRoom(roomCode);
+
+            showLobbyWaitingView(roomCode);
+        };
+
+        window.joinRoom = async () => {
+            if (!currentUser) await initMultiplayerAuth();
+            const roomCode = document.getElementById('room-code-input').value.trim().toUpperCase();
+            if (!roomCode || roomCode.length !== 4) return alert("Please enter a valid 4-character code!");
+
+            const playerName = document.getElementById('player-name-input').value.trim() || `Player_${Math.floor(Math.random()*1000)}`;
+            const roomDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+
+            try {
+                const roomSnap = await getDoc(roomDocRef);
+                if (!roomSnap.exists()) return alert("Room not found!");
+
+                const data = roomSnap.data();
+                if (data.status !== 'waiting') return alert("This game has already started!");
+                if (data.players.length >= 6) return alert("Room is full! (Max 6 players)");
+
+                const updatedPlayers = [...data.players, { id: currentUser.uid, name: playerName }];
+                await updateDoc(roomDocRef, { players: updatedPlayers });
+
+                isHost = false;
+                activeRoomId = roomCode;
+                window.mpState.isMultiplayer = true;
+                subscribeToRoom(roomCode);
+
+                showLobbyWaitingView(roomCode);
+            } catch (e) {
+                console.error("Error joining room: ", e);
+            }
+        };
+
+        function showLobbyWaitingView(roomCode) {
+            document.getElementById('lobby-choice-view').classList.add('hidden');
+            document.getElementById('lobby-waiting-view').classList.remove('hidden');
+            document.getElementById('lobby-waiting-view').classList.add('flex');
+            document.getElementById('room-code-text').textContent = roomCode;
+
+            if (isHost) {
+                document.getElementById('host-controls').classList.remove('hidden');
+                document.getElementById('client-waiting-msg').classList.add('hidden');
+            } else {
+                document.getElementById('host-controls').classList.add('hidden');
+                document.getElementById('client-waiting-msg').classList.remove('hidden');
+            }
+        }
+
+        function subscribeToRoom(roomCode) {
+            const roomDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+            
+            if (roomUnsubscribe) roomUnsubscribe();
+
+            roomUnsubscribe = onSnapshot(roomDocRef, (snapshot) => {
+                if (!snapshot.exists()) {
+                    window.leaveRoom();
+                    return;
+                }
+
+                const data = snapshot.data();
+                currentRoomData = data;
+                updateLobbyUI(data);
+
+                // Game State Transitions
+                if (data.status === 'playing' && document.getElementById('game-screen').classList.contains('hidden')) {
+                    // Sync host game parameters
+                    selectedPieces = data.pieceCount;
+                    currentPhotoUrl = data.photoUrl;
+                    
+                    if (selectedPieces === 6) { gridCols = 3; gridRows = 2; }
+                    else if (selectedPieces === 12) { gridCols = 4; gridRows = 3; }
+                    else if (selectedPieces === 24) { gridCols = 6; gridRows = 4; }
+                    else if (selectedPieces === 48) { gridCols = 8; gridRows = 6; }
+                    else if (selectedPieces === 192) { gridCols = 16; gridRows = 12; }
+
+                    gridState = [...data.gridState];
+
+                    window.closeLobbyModal();
+                    optimizePhotoForBoard(currentPhotoUrl, () => {
+                        window.startMultiplayerGameSession();
+                    });
+                } else if (data.status === 'playing') {
+                    // Live update board state from network
+                    if (JSON.stringify(gridState) !== JSON.stringify(data.gridState)) {
+                        gridState = [...data.gridState];
+                        renderBoard();
+                    }
+                    updateTurnIndicator(data);
+                }
+            }, (error) => {
+                console.error("Room listener error:", error);
+            });
+        }
+
+        function updateLobbyUI(data) {
+            document.getElementById('player-count').textContent = data.players.length;
+            const container = document.getElementById('player-list-container');
+            container.innerHTML = '';
+
+            data.players.forEach((p, idx) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between text-xs py-1.5 px-3 rounded-lg bg-stone-900 border border-stone-800";
+                
+                const isThisPlayerHost = (p.id === data.hostId);
+                const isMe = (p.id === currentUser?.uid);
+
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-user text-amber-400"></i>
+                        <span class="font-bold text-amber-100 ${isMe ? 'underline' : ''}">${p.name} ${isMe ? '(You)' : ''}</span>
+                    </div>
+                    ${isThisPlayerHost ? '<span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-black border border-amber-500/40">HOST</span>' : ''}
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateTurnIndicator(data) {
+            const turnBanner = document.getElementById('multiplayer-turn-banner');
+            turnBanner.classList.remove('hidden');
+
+            const currentTurnPlayer = data.players[data.turnIndex];
+            const isMyTurn = (currentTurnPlayer?.id === currentUser?.uid);
+
+            const displayElem = document.getElementById('current-turn-player');
+            displayElem.textContent = isMyTurn ? "YOUR TURN!" : `${currentTurnPlayer?.name}'s Turn`;
+            displayElem.className = isMyTurn ? "text-green-400 font-extrabold" : "text-amber-200 font-bold";
+        }
+
+        window.hostStartGame = async () => {
+            if (!isHost || !activeRoomId) return;
+
+            const roomDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', activeRoomId);
+
+            // Generate initial shuffled grid
+            const totalCells = gridCols * gridRows;
+            let targetShuffle = Array.from({ length: totalCells }, (_, i) => i);
+            do {
+                for (let i = targetShuffle.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [targetShuffle[i], targetShuffle[j]] = [targetShuffle[j], targetShuffle[i]];
+                }
+            } while (targetShuffle.every((val, idx) => val === idx));
+
+            await updateDoc(roomDocRef, {
+                status: 'playing',
+                pieceCount: selectedPieces,
+                photoUrl: currentPhotoUrl,
+                gridState: targetShuffle,
+                turnIndex: 0
+            });
+        };
+
+        window.syncMultiplayerMove = async (newGrid) => {
+            if (!window.mpState.isMultiplayer || !activeRoomId || !currentRoomData) return;
+
+            const nextTurnIndex = (currentRoomData.turnIndex + 1) % currentRoomData.players.length;
+            const roomDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', activeRoomId);
+
+            await updateDoc(roomDocRef, {
+                gridState: newGrid,
+                turnIndex: nextTurnIndex
+            });
+        };
+
+        window.leaveRoom = () => {
+            if (roomUnsubscribe) roomUnsubscribe();
+            activeRoomId = null;
+            window.mpState.isMultiplayer = false;
+            currentRoomData = null;
+
+            document.getElementById('multiplayer-turn-banner').classList.add('hidden');
+            document.getElementById('lobby-waiting-view').classList.add('hidden');
+            document.getElementById('lobby-waiting-view').classList.remove('flex');
+            document.getElementById('lobby-choice-view').classList.remove('hidden');
+            window.closeLobbyModal();
+        };
+
+        window.copyRoomCode = () => {
+            const code = document.getElementById('room-code-text').textContent;
+            navigator.clipboard.writeText(code);
+            alert(`Room code ${code} copied to clipboard!`);
+        };
+    </script>
+
+    <!-- Original Single Player Game Logic with Multiplayer Event Hooks -->
     <script>
         let selectedPieces = 12; // Default pieces selection
         let gridCols = 4;
@@ -366,35 +715,23 @@
         let draggedPieceId = null;
         let draggedFromIndex = null;
 
-        // Soundtrack Audio Elements (Intro + Loop pairs)
+        // Audio Objects
         const audioMenuBegin = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_MainMenu_Begin.wav');
         const audioMenuLoop = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_MainMenu.wav');
-        
         const audioPuzzleBegin = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_Puzzle_Begin.wav');
         const audioPuzzleLoop = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_Puzzle.wav');
-        
         const audioWin = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_Puzzle_End.wav');
 
         audioMenuBegin.preload = 'auto';
         audioMenuLoop.preload = 'auto';
         audioMenuLoop.loop = true;
-
         audioPuzzleBegin.preload = 'auto';
         audioPuzzleLoop.preload = 'auto';
         audioPuzzleLoop.loop = true;
-
         audioWin.preload = 'auto';
 
-        // Chain intro to loop when intro finishes
-        audioMenuBegin.onended = () => {
-            audioMenuLoop.currentTime = 0;
-            audioMenuLoop.play().catch(() => {});
-        };
-
-        audioPuzzleBegin.onended = () => {
-            audioPuzzleLoop.currentTime = 0;
-            audioPuzzleLoop.play().catch(() => {});
-        };
+        audioMenuBegin.onended = () => { audioMenuLoop.currentTime = 0; audioMenuLoop.play().catch(() => {}); };
+        audioPuzzleBegin.onended = () => { audioPuzzleLoop.currentTime = 0; audioPuzzleLoop.play().catch(() => {}); };
 
         function startMenuMusic() {
             stopAllMusic();
@@ -424,15 +761,12 @@
             audioWin.pause();
         }
 
-        // Downscale large images using canvas to prevent GPU texture thrashing & lag on high piece counts
         function optimizePhotoForBoard(srcUrl, callback) {
             const img = new Image();
             img.crossOrigin = "anonymous";
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                
-                // Cap maximum rendering dimension for silky-smooth performance on 192 pieces
                 const maxDim = 800;
                 let width = img.width;
                 let height = img.height;
@@ -454,7 +788,7 @@
                 try {
                     optimizedPhotoUrl = canvas.toDataURL('image/jpeg', 0.85);
                 } catch (e) {
-                    optimizedPhotoUrl = srcUrl; // Fallback
+                    optimizedPhotoUrl = srcUrl;
                 }
                 callback();
             };
@@ -469,17 +803,11 @@
             initAudio();
             selectedPieces = count;
 
-            if (count === 6) {
-                gridCols = 3; gridRows = 2;
-            } else if (count === 12) {
-                gridCols = 4; gridRows = 3;
-            } else if (count === 24) {
-                gridCols = 6; gridRows = 4;
-            } else if (count === 48) {
-                gridCols = 8; gridRows = 6;
-            } else if (count === 192) {
-                gridCols = 16; gridRows = 12;
-            }
+            if (count === 6) { gridCols = 3; gridRows = 2; }
+            else if (count === 12) { gridCols = 4; gridRows = 3; }
+            else if (count === 24) { gridCols = 6; gridRows = 4; }
+            else if (count === 48) { gridCols = 8; gridRows = 6; }
+            else if (count === 192) { gridCols = 16; gridRows = 12; }
 
             optimizePhotoForBoard(currentPhotoUrl, () => {
                 startPuzzleGame();
@@ -541,10 +869,23 @@
             }, 600);
         }
 
-        // Fast Flash Shuffle FX
+        window.startMultiplayerGameSession = () => {
+            resetStopwatch();
+            isShuffling = false;
+            document.getElementById('cheat-image').src = currentPhotoUrl;
+
+            document.getElementById('menu-screen').classList.add('hidden');
+            const gameScreen = document.getElementById('game-screen');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+
+            startPuzzleMusic();
+            renderBoard();
+            startStopwatch();
+        };
+
         function animateFlashShuffle(callback) {
             const totalCells = gridCols * gridRows;
-
             let targetShuffle = Array.from({ length: totalCells }, (_, i) => i);
             do {
                 for (let i = targetShuffle.length - 1; i > 0; i--) {
@@ -576,16 +917,8 @@
                         const cell1 = cells[currentIdx];
                         const cell2 = cells[idx];
 
-                        if (cell1) {
-                            cell1.classList.remove('shuffle-flash');
-                            void cell1.offsetWidth;
-                            cell1.classList.add('shuffle-flash');
-                        }
-                        if (cell2) {
-                            cell2.classList.remove('shuffle-flash');
-                            void cell2.offsetWidth;
-                            cell2.classList.add('shuffle-flash');
-                        }
+                        if (cell1) { cell1.classList.remove('shuffle-flash'); void cell1.offsetWidth; cell1.classList.add('shuffle-flash'); }
+                        if (cell2) { cell2.classList.remove('shuffle-flash'); void cell2.offsetWidth; cell2.classList.add('shuffle-flash'); }
                     }
                 }
 
@@ -594,7 +927,6 @@
             }, intervalTime);
         }
 
-        // Fast state sync without rebuilding entire DOM tree to avoid memory allocation lag
         function updatePiecePositions() {
             const gridContainer = document.getElementById('puzzle-grid');
             const cells = gridContainer.children;
@@ -615,16 +947,11 @@
                 const piece = cell.firstElementChild;
                 if (piece) {
                     piece.dataset.pieceVal = pieceVal;
-                    
                     const cellSize = parseFloat(cell.style.width);
-                    const boardWidth = cellSize * gridCols;
-                    const boardHeight = cellSize * gridRows;
-
                     const origCol = pieceVal % gridCols;
                     const origRow = Math.floor(pieceVal / gridCols);
 
                     piece.style.backgroundPosition = `${origCol * -cellSize}px ${origRow * -cellSize}px`;
-                    
                     piece.ondragstart = (e) => handleDragStart(e, pieceVal, slotIndex);
                     piece.ontouchstart = (e) => handleTouchStart(e, pieceVal, slotIndex);
                 }
@@ -678,7 +1005,7 @@
                 if (pieceVal !== null) {
                     const piece = document.createElement('div');
                     piece.className = 'puzzle-piece shadow-md';
-                    piece.draggable = !isShuffling;
+                    piece.draggable = !isShuffling && window.mpState.isMyTurn();
                     piece.dataset.pieceVal = pieceVal;
 
                     const origCol = pieceVal % gridCols;
@@ -706,7 +1033,7 @@
         }
 
         function handleDragStart(e, pieceVal, slotIndex) {
-            if (isShuffling) return;
+            if (isShuffling || !window.mpState.isMyTurn()) return e.preventDefault();
             draggedPieceId = pieceVal;
             draggedFromIndex = slotIndex;
             if (e.dataTransfer) {
@@ -718,17 +1045,18 @@
             e.preventDefault();
             document.querySelectorAll('.puzzle-cell').forEach(c => c.classList.remove('drag-over-slot'));
 
+            if (!window.mpState.isMyTurn()) return;
+
             if (draggedFromIndex !== null && draggedFromIndex !== targetSlotIndex) {
                 swapPieces(draggedFromIndex, targetSlotIndex);
             }
         }
 
-        // Mobile Touch Support
         let activeTouchPiece = null;
         let touchStartPos = { x: 0, y: 0 };
 
         function handleTouchStart(e, pieceVal, slotIndex) {
-            if (isShuffling) return;
+            if (isShuffling || !window.mpState.isMyTurn()) return;
             const touch = e.touches[0];
             draggedPieceId = pieceVal;
             draggedFromIndex = slotIndex;
@@ -757,7 +1085,7 @@
             const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
             const targetCell = dropTarget ? dropTarget.closest('.puzzle-cell') : null;
 
-            if (targetCell) {
+            if (targetCell && window.mpState.isMyTurn()) {
                 const targetSlotIndex = parseInt(targetCell.dataset.slotIndex);
                 if (!isNaN(targetSlotIndex) && targetSlotIndex !== draggedFromIndex) {
                     swapPieces(draggedFromIndex, targetSlotIndex);
@@ -773,7 +1101,7 @@
             const targetCell = document.querySelectorAll('.puzzle-cell')[cellIdx];
             if (targetCell) {
                 targetCell.classList.remove('snap-animation');
-                void targetCell.offsetWidth; // Force reflow
+                void targetCell.offsetWidth;
                 targetCell.classList.add('snap-animation');
                 setTimeout(() => targetCell.classList.remove('snap-animation'), 350);
             }
@@ -784,17 +1112,16 @@
 
             renderBoard();
 
-            // Trigger snap animation for ALL pieces that land in their correct position
-            if (gridState[toIdx] === toIdx) {
-                triggerSnapAnimation(toIdx);
-            }
-            if (gridState[fromIdx] === fromIdx) {
-                triggerSnapAnimation(fromIdx);
+            if (gridState[toIdx] === toIdx) triggerSnapAnimation(toIdx);
+            if (gridState[fromIdx] === fromIdx) triggerSnapAnimation(fromIdx);
+
+            if (window.mpState.isMultiplayer && window.syncMultiplayerMove) {
+                window.syncMultiplayerMove([...gridState]);
             }
         }
 
         function shiftGrid(direction) {
-            if (isShuffling || !isGameRunning) return;
+            if (isShuffling || !isGameRunning || !window.mpState.isMyTurn()) return;
 
             let newGrid = [...gridState];
 
@@ -802,28 +1129,28 @@
                 for (let r = 0; r < gridRows; r++) {
                     const rowVals = [];
                     for (let c = 0; c < gridCols; c++) rowVals.push(newGrid[r * gridCols + c]);
-                    rowVals.push(rowVals.shift()); // Shift Left
+                    rowVals.push(rowVals.shift());
                     for (let c = 0; c < gridCols; c++) newGrid[r * gridCols + c] = rowVals[c];
                 }
             } else if (direction === 'right') {
                 for (let r = 0; r < gridRows; r++) {
                     const rowVals = [];
                     for (let c = 0; c < gridCols; c++) rowVals.push(newGrid[r * gridCols + c]);
-                    rowVals.unshift(rowVals.pop()); // Shift Right
+                    rowVals.unshift(rowVals.pop());
                     for (let c = 0; c < gridCols; c++) newGrid[r * gridCols + c] = rowVals[c];
                 }
             } else if (direction === 'up') {
                 for (let c = 0; c < gridCols; c++) {
                     const colVals = [];
                     for (let r = 0; r < gridRows; r++) colVals.push(newGrid[r * gridCols + c]);
-                    colVals.push(colVals.shift()); // Shift Up
+                    colVals.push(colVals.shift());
                     for (let r = 0; r < gridRows; r++) newGrid[r * gridCols + c] = colVals[r];
                 }
             } else if (direction === 'down') {
                 for (let c = 0; c < gridCols; c++) {
                     const colVals = [];
                     for (let r = 0; r < gridRows; r++) colVals.push(newGrid[r * gridCols + c]);
-                    colVals.unshift(colVals.pop()); // Shift Down
+                    colVals.unshift(colVals.pop());
                     for (let r = 0; r < gridRows; r++) newGrid[r * gridCols + c] = colVals[r];
                 }
             }
@@ -832,12 +1159,13 @@
             gridState = newGrid;
             renderBoard();
 
-            // Check and trigger snap pulse for all pieces that moved into their correct slots
             gridState.forEach((pieceVal, idx) => {
-                if (pieceVal === idx && oldGrid[idx] !== idx) {
-                    triggerSnapAnimation(idx);
-                }
+                if (pieceVal === idx && oldGrid[idx] !== idx) triggerSnapAnimation(idx);
             });
+
+            if (window.mpState.isMultiplayer && window.syncMultiplayerMove) {
+                window.syncMultiplayerMove([...gridState]);
+            }
         }
 
         function startStopwatch() {
@@ -925,6 +1253,7 @@
         function returnToMenu() {
             stopStopwatch();
             isShuffling = false;
+            if (window.leaveRoom) window.leaveRoom();
             document.getElementById('view-puzzle-overlay').classList.add('hidden');
             document.getElementById('view-puzzle-overlay').classList.remove('flex');
             document.getElementById('results-modal').classList.add('hidden');
@@ -943,10 +1272,7 @@
             }
         }
 
-        // Add user interaction listener to initiate background music
         window.addEventListener('click', initAudio, { once: true });
-
-        // Window resize re-calculation for responsive grids
         window.addEventListener('resize', () => {
             if (isGameRunning || isShuffling) {
                 renderBoard();
