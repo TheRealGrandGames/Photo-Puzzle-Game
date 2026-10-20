@@ -137,6 +137,63 @@
             z-index: 30;
         }
 
+        /* Mode Selection Styling */
+        .btn-mode-active {
+            background: linear-gradient(to bottom, #ffd82b 0%, #fca800 100%) !important;
+            border-color: #ffe869 !important;
+            color: #422006 !important;
+            text-shadow: none !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 3px 6px rgba(0,0,0,0.4) !important;
+        }
+
+        /* Hover Chat Bubbles */
+        .tooltip-bubble {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-6px);
+            margin-bottom: 6px;
+            background: rgba(18, 12, 8, 0.95);
+            color: #fde68a;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            z-index: 50;
+            text-shadow: none;
+        }
+
+        .tooltip-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #f59e0b transparent transparent transparent;
+        }
+
+        .group:hover .tooltip-bubble {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .tooltip-multiline {
+            white-space: normal;
+            width: 180px;
+            text-align: center;
+            line-height: 1.2;
+        }
+
         /* Glow effects for target slot */
         .drag-over-slot {
             background-color: rgba(255, 255, 255, 0.4) !important;
@@ -172,27 +229,67 @@
             </div>
 
             <!-- Piece Selection Buttons Row (3DS Style) -->
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 my-4 px-2 sm:px-6">
-                <button onclick="selectPieceCount(6)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">6</span>
-                </button>
-                <button onclick="selectPieceCount(12)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">12</span>
-                </button>
-                <button onclick="selectPieceCount(24)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">24</span>
-                </button>
-                <button onclick="selectPieceCount(48)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">48</span>
-                </button>
-                <button onclick="selectPieceCount(192)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-2xl sm:text-3xl heading-font leading-none">192</span>
-                </button>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 my-2 px-2 sm:px-6">
+                <div class="relative group">
+                    <div class="tooltip-bubble">Novice</div>
+                    <button onclick="selectPieceCount(6)" class="w-full btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                        <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                        <span class="text-2xl sm:text-3xl heading-font leading-none">6</span>
+                    </button>
+                </div>
+                <div class="relative group">
+                    <div class="tooltip-bubble">Easy</div>
+                    <button onclick="selectPieceCount(12)" class="w-full btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                        <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                        <span class="text-2xl sm:text-3xl heading-font leading-none">12</span>
+                    </button>
+                </div>
+                <div class="relative group">
+                    <div class="tooltip-bubble">Medium</div>
+                    <button onclick="selectPieceCount(24)" class="w-full btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                        <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                        <span class="text-2xl sm:text-3xl heading-font leading-none">24</span>
+                    </button>
+                </div>
+                <div class="relative group">
+                    <div class="tooltip-bubble">Hard</div>
+                    <button onclick="selectPieceCount(48)" class="w-full btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                        <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                        <span class="text-2xl sm:text-3xl heading-font leading-none">48</span>
+                    </button>
+                </div>
+                <div class="relative group">
+                    <div class="tooltip-bubble">Expert</div>
+                    <button onclick="selectPieceCount(192)" class="w-full btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                        <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                        <span class="text-2xl sm:text-3xl heading-font leading-none">192</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mode Selection Buttons (Classic, Timed, Endless) -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-3 my-2 px-2 sm:px-6">
+                <div class="relative group">
+                    <div class="tooltip-bubble tooltip-multiline">Complete the Puzzle at your own pace with a stopwatch at the top.</div>
+                    <button id="mode-btn-classic" onclick="setGameMode('classic')" class="w-full btn-3ds btn-mode-active text-amber-100 py-2.5 px-2 rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm uppercase tracking-wider space-x-1.5">
+                        <i class="fas fa-hourglass-start text-sm"></i>
+                        <span>Classic Mode</span>
+                    </button>
+                </div>
+                <div class="relative group">
+                    <div class="tooltip-bubble tooltip-multiline">Complete the Puzzle before the timer runs out.</div>
+                    <button id="mode-btn-timed" onclick="setGameMode('timed')" class="w-full btn-3ds text-amber-100 py-2.5 px-2 rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm uppercase tracking-wider space-x-1.5">
+                        <i class="fas fa-stopwatch text-sm"></i>
+                        <span>Timed Mode</span>
+                    </button>
+                </div>
+                <div class="relative group">
+                    <div class="tooltip-bubble tooltip-multiline">Complete the Puzzle infinitely before the stopwatch exceeds your previous time.</div>
+                    <button id="mode-btn-endless" onclick="setGameMode('endless')" class="w-full btn-3ds text-amber-100 py-2.5 px-2 rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm uppercase tracking-wider space-x-1.5">
+                        <i class="fas fa-infinity text-sm"></i>
+                        <span>Endless Mode</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Bottom Menu Panel -->
@@ -217,10 +314,14 @@
             <!-- Stopwatch Top Header Bar -->
             <div class="flex flex-col items-center mb-2">
                 <div class="bg-gradient-to-b from-gray-800 to-black px-6 sm:px-8 py-2 rounded-full border-2 border-amber-500/60 shadow-lg flex items-center space-x-3">
-                    <i class="fas fa-stopwatch text-amber-400 text-xl animate-pulse"></i>
+                    <i id="header-icon" class="fas fa-stopwatch text-amber-400 text-xl animate-pulse"></i>
                     <div id="stopwatch-display" class="font-mono text-2xl sm:text-3xl font-black text-amber-300 tracking-wider">
                         00:00:00.<span class="text-base">000</span>
                     </div>
+                </div>
+                <!-- Extra HUD info for Timed / Endless modes -->
+                <div id="mode-hud-info" class="mt-1 text-xs font-black text-amber-900 uppercase tracking-wider hidden bg-amber-200/90 px-3 py-0.5 rounded-full border border-amber-400">
+                    Target: --
                 </div>
             </div>
 
@@ -291,11 +392,11 @@
         <!-- ================= RESULTS MODAL ================= -->
         <div id="results-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
             <div class="bg-stone-900 border-4 border-amber-500 rounded-2xl max-w-md w-full p-6 text-center shadow-2xl relative transform transition-all scale-95 opacity-0" id="results-card">
-                <div class="w-16 h-16 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-amber-400 text-3xl">
-                    <i class="fas fa-trophy"></i>
+                <div id="results-icon-bg" class="w-16 h-16 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-amber-400 text-3xl">
+                    <i id="results-icon" class="fas fa-trophy"></i>
                 </div>
-                <h2 class="text-2xl font-black text-amber-300 uppercase tracking-wide heading-font">Puzzle Cleared!</h2>
-                <p class="text-stone-300 text-sm mt-1 mb-4">Fantastic work! You completed the puzzle in:</p>
+                <h2 id="results-title" class="text-2xl font-black text-amber-300 uppercase tracking-wide heading-font">Puzzle Cleared!</h2>
+                <p id="results-subtitle" class="text-stone-300 text-sm mt-1 mb-4">Fantastic work! You completed the puzzle in:</p>
 
                 <div class="bg-stone-950 p-4 rounded-xl border border-stone-800 mb-4">
                     <div id="final-time-display" class="font-mono text-3xl font-black text-amber-400">
@@ -305,13 +406,13 @@
                 </div>
 
                 <!-- View Finished Puzzle Button -->
-                <button onclick="viewFinishedPuzzle(event)" class="w-full btn-3ds mb-4 py-2.5 rounded-xl font-bold text-amber-200 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center space-x-2 border border-amber-500/50">
+                <button id="view-puzzle-btn" onclick="viewFinishedPuzzle(event)" class="w-full btn-3ds mb-4 py-2.5 rounded-xl font-bold text-amber-200 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center space-x-2 border border-amber-500/50">
                     <i class="fas fa-eye"></i>
                     <span>View Finished Puzzle</span>
                 </button>
 
                 <div class="flex space-x-3">
-                    <button onclick="restartPuzzle()" class="flex-1 btn-3ds py-3 rounded-xl font-bold text-amber-100 text-sm">
+                    <button id="btn-primary-action" onclick="restartPuzzle()" class="flex-1 btn-3ds py-3 rounded-xl font-bold text-amber-100 text-sm">
                         <i class="fas fa-redo mr-2"></i>Play Again
                     </button>
                     <button onclick="returnToMenu()" class="flex-1 btn-3ds-white py-3 rounded-xl font-bold text-gray-900 text-sm">
@@ -335,6 +436,13 @@
         let selectedPieces = 12; // Default pieces selection
         let gridCols = 4;
         let gridRows = 3;
+
+        // Mode State
+        let currentGameMode = 'classic'; // 'classic', 'timed', 'endless'
+        let timedModeDuration = 60000; // Countdown limit in ms for Timed Mode
+        let endlessPreviousTime = null; // Last record time in Endless Mode
+        let endlessStreak = 0; // Current round streak in Endless Mode
+        let isGameLost = false;
 
         // Preset photos array
         const presetPhotos = [
@@ -380,6 +488,36 @@
 
         audioMenuBegin.onended = () => { audioMenuLoop.currentTime = 0; audioMenuLoop.play().catch(() => {}); };
         audioPuzzleBegin.onended = () => { audioPuzzleLoop.currentTime = 0; audioPuzzleLoop.play().catch(() => {}); };
+
+        function setGameMode(mode) {
+            initAudio();
+            currentGameMode = mode;
+            
+            // Reset state
+            endlessPreviousTime = null;
+            endlessStreak = 0;
+
+            document.getElementById('mode-btn-classic').classList.remove('btn-mode-active');
+            document.getElementById('mode-btn-timed').classList.remove('btn-mode-active');
+            document.getElementById('mode-btn-endless').classList.remove('btn-mode-active');
+
+            if (mode === 'classic') {
+                document.getElementById('mode-btn-classic').classList.add('btn-mode-active');
+            } else if (mode === 'timed') {
+                document.getElementById('mode-btn-timed').classList.add('btn-mode-active');
+            } else if (mode === 'endless') {
+                document.getElementById('mode-btn-endless').classList.add('btn-mode-active');
+            }
+        }
+
+        function calculateTimedModeDuration(pieces) {
+            // Allocate generous scaling time based on piece count
+            if (pieces <= 6) return 40000; // 40 secs
+            if (pieces <= 12) return 75000; // 1m 15s
+            if (pieces <= 24) return 150000; // 2m 30s
+            if (pieces <= 48) return 300000; // 5m
+            return 900000; // 15m for 192 pieces
+        }
 
         function startMenuMusic() {
             stopAllMusic();
@@ -488,6 +626,9 @@
         function startPuzzleGame() {
             resetStopwatch();
             isShuffling = true;
+            isGameLost = false;
+
+            timedModeDuration = calculateTimedModeDuration(gridCols * gridRows);
             
             const totalCells = gridCols * gridRows;
             gridState = Array.from({ length: totalCells }, (_, i) => i);
@@ -499,6 +640,28 @@
             const gameScreen = document.getElementById('game-screen');
             gameScreen.classList.remove('hidden');
             gameScreen.classList.add('flex');
+
+            // Setup HUD elements according to game mode
+            const modeHud = document.getElementById('mode-hud-info');
+            const headerIcon = document.getElementById('header-icon');
+
+            if (currentGameMode === 'timed') {
+                modeHud.classList.remove('hidden');
+                modeHud.textContent = `Time Limit: ${(timedModeDuration / 1000).toFixed(0)}s`;
+                headerIcon.className = 'fas fa-hourglass-half text-amber-400 text-xl animate-pulse';
+                document.getElementById('stopwatch-display').innerHTML = getFormattedTimeText(timedModeDuration);
+            } else if (currentGameMode === 'endless') {
+                modeHud.classList.remove('hidden');
+                modeHud.textContent = endlessPreviousTime !== null 
+                    ? `Target: ${getCleanTimeText(endlessPreviousTime)} | Streak: ${endlessStreak}`
+                    : `Initial Round | Streak: ${endlessStreak}`;
+                headerIcon.className = 'fas fa-infinity text-amber-400 text-xl animate-pulse';
+                document.getElementById('stopwatch-display').innerHTML = getFormattedTimeText(0);
+            } else {
+                modeHud.classList.add('hidden');
+                headerIcon.className = 'fas fa-stopwatch text-amber-400 text-xl animate-pulse';
+                document.getElementById('stopwatch-display').innerHTML = getFormattedTimeText(0);
+            }
 
             startPuzzleMusic();
 
@@ -593,9 +756,26 @@
 
             document.getElementById('progress-text').textContent = `Solved: ${solvedCount} / ${totalCells}`;
 
-            if (solvedCount === totalCells && isGameRunning && !isShuffling) {
+            if (solvedCount === totalCells && isGameRunning && !isShuffling && !isGameLost) {
                 stopStopwatch();
-                setTimeout(() => showResultsModal(), 300);
+                setTimeout(() => handlePuzzleCompletion(), 300);
+            }
+        }
+
+        function handlePuzzleCompletion() {
+            if (currentGameMode === 'endless') {
+                if (endlessPreviousTime !== null && elapsedTime > endlessPreviousTime) {
+                    // Failed to beat time in Endless Mode -> Lose
+                    isGameLost = true;
+                    showResultsModal(false, "Endless Streak Ended!", `You were slower than your best target time of ${getCleanTimeText(endlessPreviousTime)}.`);
+                } else {
+                    // Beaten target or first round -> Win and record new best
+                    endlessPreviousTime = elapsedTime;
+                    endlessStreak++;
+                    showResultsModal(true, `Round ${endlessStreak} Cleared!`, "Great speed! Next round target set to your new best time.");
+                }
+            } else {
+                showResultsModal(true);
             }
         }
 
@@ -639,7 +819,7 @@
                 if (pieceVal !== null) {
                     const piece = document.createElement('div');
                     piece.className = 'puzzle-piece shadow-md';
-                    piece.draggable = !isShuffling;
+                    piece.draggable = !isShuffling && !isGameLost;
                     piece.dataset.pieceVal = pieceVal;
 
                     const origCol = pieceVal % gridCols;
@@ -660,14 +840,14 @@
 
             document.getElementById('progress-text').textContent = `Solved: ${solvedCount} / ${totalCells}`;
 
-            if (solvedCount === totalCells && isGameRunning && !isShuffling) {
+            if (solvedCount === totalCells && isGameRunning && !isShuffling && !isGameLost) {
                 stopStopwatch();
-                setTimeout(() => showResultsModal(), 300);
+                setTimeout(() => handlePuzzleCompletion(), 300);
             }
         }
 
         function handleDragStart(e, pieceVal, slotIndex) {
-            if (isShuffling) return e.preventDefault();
+            if (isShuffling || isGameLost) return e.preventDefault();
             draggedPieceId = pieceVal;
             draggedFromIndex = slotIndex;
             if (e.dataTransfer) {
@@ -677,6 +857,7 @@
 
         function handleDrop(e, targetSlotIndex) {
             e.preventDefault();
+            if (isGameLost) return;
             document.querySelectorAll('.puzzle-cell').forEach(c => c.classList.remove('drag-over-slot'));
 
             if (draggedFromIndex !== null && draggedFromIndex !== targetSlotIndex) {
@@ -688,7 +869,7 @@
         let touchStartPos = { x: 0, y: 0 };
 
         function handleTouchStart(e, pieceVal, slotIndex) {
-            if (isShuffling) return;
+            if (isShuffling || isGameLost) return;
             const touch = e.touches[0];
             draggedPieceId = pieceVal;
             draggedFromIndex = slotIndex;
@@ -700,7 +881,7 @@
         }
 
         function handleTouchMove(e) {
-            if (!activeTouchPiece) return;
+            if (!activeTouchPiece || isGameLost) return;
             const touch = e.touches[0];
             const dx = touch.clientX - touchStartPos.x;
             const dy = touch.clientY - touchStartPos.y;
@@ -717,7 +898,7 @@
             const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
             const targetCell = dropTarget ? dropTarget.closest('.puzzle-cell') : null;
 
-            if (targetCell) {
+            if (targetCell && !isGameLost) {
                 const targetSlotIndex = parseInt(targetCell.dataset.slotIndex);
                 if (!isNaN(targetSlotIndex) && targetSlotIndex !== draggedFromIndex) {
                     swapPieces(draggedFromIndex, targetSlotIndex);
@@ -749,7 +930,7 @@
         }
 
         function shiftGrid(direction) {
-            if (isShuffling || !isGameRunning) return;
+            if (isShuffling || !isGameRunning || isGameLost) return;
 
             let newGrid = [...gridState];
 
@@ -793,7 +974,7 @@
         }
 
         function startStopwatch() {
-            startTime = Date.now() - elapsedTime;
+            startTime = Date.now() - (currentGameMode === 'timed' ? 0 : elapsedTime);
             isGameRunning = true;
             timerInterval = setInterval(updateStopwatchDisplay, 10);
         }
@@ -806,14 +987,59 @@
         function resetStopwatch() {
             stopStopwatch();
             elapsedTime = 0;
+            const displayElem = document.getElementById('stopwatch-display');
+            if (displayElem) {
+                displayElem.className = "font-mono text-2xl sm:text-3xl font-black text-amber-300 tracking-wider";
+            }
             updateStopwatchDisplay();
         }
 
         function updateStopwatchDisplay() {
+            const displayElem = document.getElementById('stopwatch-display');
+
             if (isGameRunning) {
-                elapsedTime = Date.now() - startTime;
+                if (currentGameMode === 'timed') {
+                    const currentElapsed = Date.now() - startTime;
+                    const remainingMs = Math.max(0, timedModeDuration - currentElapsed);
+                    elapsedTime = currentElapsed;
+                    displayElem.innerHTML = getFormattedTimeText(remainingMs);
+
+                    // Turn timer red if 10 seconds or less remain
+                    if (remainingMs <= 10000) {
+                        displayElem.className = "font-mono text-2xl sm:text-3xl font-black text-red-500 tracking-wider animate-pulse";
+                    } else {
+                        displayElem.className = "font-mono text-2xl sm:text-3xl font-black text-amber-300 tracking-wider";
+                    }
+
+                    if (remainingMs <= 0) {
+                        stopStopwatch();
+                        isGameLost = true;
+                        showResultsModal(false, "Time's Up!", "You ran out of time before solving the puzzle!");
+                    }
+                } else {
+                    elapsedTime = Date.now() - startTime;
+                    displayElem.innerHTML = getFormattedTimeText(elapsedTime);
+
+                    // Turn timer red if in Endless Mode and within 5 seconds of or exceeding last time
+                    if (currentGameMode === 'endless' && endlessPreviousTime !== null) {
+                        if (elapsedTime >= endlessPreviousTime - 5000) {
+                            displayElem.className = "font-mono text-2xl sm:text-3xl font-black text-red-500 tracking-wider animate-pulse";
+                        } else {
+                            displayElem.className = "font-mono text-2xl sm:text-3xl font-black text-amber-300 tracking-wider";
+                        }
+                    } else {
+                        displayElem.className = "font-mono text-2xl sm:text-3xl font-black text-amber-300 tracking-wider";
+                    }
+                }
             }
-            document.getElementById('stopwatch-display').innerHTML = getFormattedTimeText(elapsedTime);
+        }
+
+        function getCleanTimeText(ms) {
+            const minutes = Math.floor((ms % 3600000) / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            const milliseconds = ms % 1000;
+            const pad = (n, z = 2) => ('00' + n).slice(-z);
+            return `${pad(minutes)}:${pad(seconds)}.${pad(milliseconds, 3)}`;
         }
 
         function getFormattedTimeText(ms) {
@@ -832,14 +1058,38 @@
             }
         }
 
-        function showResultsModal() {
-            playWinMusic();
+        function showResultsModal(isWin = true, customTitle = null, customSubtitle = null) {
+            if (isWin) playWinMusic();
+            else stopAllMusic();
+
             const modal = document.getElementById('results-modal');
             const card = document.getElementById('results-card');
+            const iconBg = document.getElementById('results-icon-bg');
+            const icon = document.getElementById('results-icon');
+            const primaryBtn = document.getElementById('btn-primary-action');
+            const viewPuzzleBtn = document.getElementById('view-puzzle-btn');
 
             if (modal && card) {
+                if (isWin) {
+                    iconBg.className = "w-16 h-16 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-amber-400 text-3xl";
+                    icon.className = "fas fa-trophy";
+                    document.getElementById('results-title').textContent = customTitle || "Puzzle Cleared!";
+                    document.getElementById('results-subtitle').textContent = customSubtitle || "Fantastic work! You completed the puzzle in:";
+                    if (primaryBtn) primaryBtn.innerHTML = `<i class="fas ${currentGameMode === 'endless' ? 'fa-arrow-right' : 'fa-redo'} mr-2"></i>${currentGameMode === 'endless' ? 'Next Round' : 'Play Again'}`;
+                    if (viewPuzzleBtn) viewPuzzleBtn.classList.remove('hidden');
+                } else {
+                    iconBg.className = "w-16 h-16 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-red-500 text-3xl";
+                    icon.className = "fas fa-times-circle";
+                    document.getElementById('results-title').textContent = customTitle || "Game Over";
+                    document.getElementById('results-subtitle').textContent = customSubtitle || "You didn't manage to clear the puzzle in time.";
+                    if (primaryBtn) primaryBtn.innerHTML = `<i class="fas fa-redo mr-2"></i>Try Again`;
+                    if (viewPuzzleBtn) viewPuzzleBtn.classList.add('hidden');
+                }
+
                 document.getElementById('final-time-display').innerHTML = getFormattedTimeText(elapsedTime);
-                document.getElementById('final-piece-count').textContent = `Total Pieces Cleared: ${gridCols * gridRows}`;
+                document.getElementById('final-piece-count').textContent = currentGameMode === 'endless' 
+                    ? `Pieces: ${gridCols * gridRows} | Endless Streak: ${endlessStreak}`
+                    : `Pieces: ${gridCols * gridRows}`;
 
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -882,12 +1132,20 @@
             }
             if (modal) modal.classList.add('hidden');
 
+            if (currentGameMode === 'endless' && isGameLost) {
+                // Reset streak if lost in Endless
+                endlessStreak = 0;
+                endlessPreviousTime = null;
+            }
+
             startPuzzleGame();
         }
 
         function returnToMenu() {
             stopStopwatch();
             isShuffling = false;
+            endlessStreak = 0;
+            endlessPreviousTime = null;
 
             const overlay = document.getElementById('view-puzzle-overlay');
             const modal = document.getElementById('results-modal');
