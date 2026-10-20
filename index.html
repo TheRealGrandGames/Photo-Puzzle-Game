@@ -78,6 +78,7 @@
             transition: background-color 0.15s ease;
             position: relative;
             z-index: 1;
+            contain: strict;
         }
 
         .puzzle-cell.elevated-cell {
@@ -90,10 +91,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.15s ease, filter 0.2s ease;
+            transition: box-shadow 0.15s ease, filter 0.15s ease;
             cursor: grab;
             z-index: 10;
             will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
 
         .puzzle-piece:active {
@@ -101,12 +104,16 @@
             z-index: 50;
         }
 
-        /* Shuffle Animation FX - Elevated gliding above other pieces */
-        .shuffling-piece {
-            z-index: 9999 !important;
-            transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6), 0 0 15px rgba(255, 255, 255, 0.5) !important;
-            filter: brightness(1.1);
+        /* Flash Shuffle Animation FX */
+        @keyframes pieceShuffleFlash {
+            0% { filter: brightness(1) contrast(1); box-shadow: none; }
+            50% { filter: brightness(1.8) contrast(1.2); box-shadow: 0 0 15px rgba(255, 255, 255, 0.9); }
+            100% { filter: brightness(1) contrast(1); box-shadow: none; }
+        }
+
+        .shuffle-flash {
+            animation: pieceShuffleFlash 0.12s ease-in-out;
+            z-index: 30 !important;
         }
 
         @keyframes zoomInIntro {
@@ -151,10 +158,10 @@
 
             <!-- Central Preview & Upload Area -->
             <div class="flex-1 flex flex-col items-center justify-center space-y-4 my-2">
-                <div class="relative group">
+                <div class="relative group cursor-pointer" onclick="document.getElementById('image-upload').click()">
                     <!-- Image Preview Frame -->
-                    <div id="preview-frame" class="w-80 h-60 sm:w-[420px] sm:h-[315px] md:w-[500px] md:h-[375px] bg-gray-800 rounded-lg border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80');">
-                        <div id="upload-overlay" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
+                    <div id="preview-frame" class="w-80 h-60 sm:w-[420px] sm:h-[315px] md:w-[500px] md:h-[375px] bg-gray-800 rounded-lg border-4 border-white shadow-xl overflow-hidden flex items-center justify-center relative bg-cover bg-center transition-transform hover:scale-[1.01]" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80');">
+                        <div id="upload-overlay" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
                             <i class="fas fa-camera text-4xl text-white mb-2"></i>
                             <span class="text-sm font-bold text-white uppercase tracking-wider">Change Photo</span>
                         </div>
@@ -165,22 +172,26 @@
             </div>
 
             <!-- Piece Selection Buttons Row (3DS Style) -->
-            <div class="grid grid-cols-4 gap-3 sm:gap-4 my-4 px-2 sm:px-6">
-                <button onclick="selectPieceCount(6, this)" class="btn-3ds-piece btn-3ds text-white py-4 px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-xs sm:text-sm uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-3xl sm:text-4xl heading-font leading-none">6</span>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 my-4 px-2 sm:px-6">
+                <button onclick="selectPieceCount(6, this)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">6</span>
                 </button>
-                <button onclick="selectPieceCount(12, this)" class="btn-3ds-piece btn-3ds text-white py-4 px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-xs sm:text-sm uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-3xl sm:text-4xl heading-font leading-none">12</span>
+                <button onclick="selectPieceCount(12, this)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">12</span>
                 </button>
-                <button onclick="selectPieceCount(24, this)" class="btn-3ds-piece btn-3ds text-white py-4 px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-xs sm:text-sm uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-3xl sm:text-4xl heading-font leading-none">24</span>
+                <button onclick="selectPieceCount(24, this)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">24</span>
                 </button>
-                <button onclick="selectPieceCount(192, this)" class="btn-3ds-piece btn-3ds-white text-gray-900 py-4 px-2 rounded-xl flex flex-col items-center justify-center font-bold">
-                    <span class="text-xs sm:text-sm uppercase tracking-tighter opacity-80">Pieces:</span>
-                    <span class="text-3xl sm:text-4xl heading-font leading-none">192</span>
+                <button onclick="selectPieceCount(48, this)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">48</span>
+                </button>
+                <button onclick="selectPieceCount(192, this)" class="btn-3ds-piece btn-3ds text-white py-3 sm:py-4 px-1 sm:px-2 rounded-xl flex flex-col items-center justify-center font-bold">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-tighter opacity-80">Pieces:</span>
+                    <span class="text-2xl sm:text-3xl heading-font leading-none">192</span>
                 </button>
             </div>
 
@@ -259,11 +270,26 @@
                 </button>
 
                 <!-- Cheat Button -->
-                <button onclick="toggleHintModal()" class="btn-3ds py-3 sm:py-4 text-center text-xs sm:text-base font-bold text-amber-200 flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-1" title="View Original Image">
+                <button onclick="toggleCheatOverlay()" class="btn-3ds py-3 sm:py-4 text-center text-xs sm:text-base font-bold text-amber-200 flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-1" title="View Original Image">
                     <i class="fas fa-eye text-xs sm:text-sm mb-0.5 sm:mb-0"></i>
                     <span>Cheat</span>
                 </button>
             </div>
+        </div>
+
+        <!-- ================= FULL-SCREEN CHEAT OVERLAY ================= -->
+        <div id="cheat-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 sm:p-6 hidden cursor-pointer" onclick="toggleCheatOverlay()">
+            <div class="bg-amber-950/90 text-amber-200 border-2 border-amber-400/80 px-6 py-2.5 rounded-full shadow-2xl backdrop-blur-md text-xs sm:text-sm font-black uppercase tracking-widest animate-bounce">
+                <i class="fas fa-info-circle mr-2 text-amber-400"></i>Viewing cheat image. Press anywhere to close.
+            </div>
+
+            <div class="flex-1 flex items-center justify-center my-2 max-w-full max-h-[80vh] overflow-hidden">
+                <img id="cheat-image" src="" alt="Reference Cheat" class="max-w-full max-h-[75vh] object-contain rounded-xl border-4 border-amber-400 shadow-2xl" />
+            </div>
+
+            <!--<div class="text-xs text-amber-300/80 font-bold uppercase tracking-wider bg-amber-950/80 px-4 py-1 rounded-full border border-amber-500/50">
+                Tap screen to dismiss
+            </div>-->
         </div>
 
         <!-- ================= RESULTS MODAL ================= -->
@@ -275,12 +301,18 @@
                 <h2 class="text-2xl font-black text-amber-300 uppercase tracking-wide heading-font">Puzzle Cleared!</h2>
                 <p class="text-stone-300 text-sm mt-1 mb-4">Fantastic work! You completed the puzzle in:</p>
 
-                <div class="bg-stone-950 p-4 rounded-xl border border-stone-800 mb-6">
+                <div class="bg-stone-950 p-4 rounded-xl border border-stone-800 mb-4">
                     <div id="final-time-display" class="font-mono text-3xl font-black text-amber-400">
                         00:00:00.000
                     </div>
                     <div class="text-xs text-stone-400 mt-1 uppercase font-bold" id="final-piece-count">Pieces: 12</div>
                 </div>
+
+                <!-- View Finished Puzzle Button -->
+                <button onclick="viewFinishedPuzzle(event)" class="w-full btn-3ds mb-4 py-2.5 rounded-xl font-bold text-amber-200 text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center space-x-2 border border-amber-500/50">
+                    <i class="fas fa-eye"></i>
+                    <span>View Finished Puzzle</span>
+                </button>
 
                 <div class="flex space-x-3">
                     <button onclick="restartPuzzle()" class="flex-1 btn-3ds py-3 rounded-xl font-bold text-amber-100 text-sm">
@@ -293,12 +325,10 @@
             </div>
         </div>
 
-        <!-- CHEAT / FULL PHOTO MODAL -->
-        <div id="hint-modal" class="fixed inset-0 bg-black/75 z-40 flex items-center justify-center hidden p-4" onclick="toggleHintModal()">
-            <div class="relative bg-stone-900 border-2 border-white p-2 rounded-xl max-w-sm w-full">
-                <p class="text-xs text-center font-bold text-amber-300 mb-2">Original Image Reference</p>
-                <img id="hint-image" src="" alt="Reference" class="w-full h-auto rounded border border-stone-700">
-                <p class="text-[10px] text-center text-stone-400 mt-2">Tap anywhere to close</p>
+        <!-- FULL-SCREEN BACKDROP CLICK OVERLAY FOR VIEWING FINISHED PUZZLE -->
+        <div id="view-puzzle-overlay" class="fixed inset-0 z-40 hidden cursor-pointer flex flex-col items-center justify-between p-6 pointer-events-auto" onclick="dismissFinishedPuzzleView()">
+            <div class="bg-amber-950/90 text-amber-200 border-2 border-amber-400/80 px-6 py-2.5 rounded-full shadow-2xl backdrop-blur-md text-xs sm:text-sm font-black uppercase tracking-widest animate-bounce">
+                <i class="fas fa-info-circle mr-2 text-amber-400"></i>Viewing finished puzzle. Press anywhere to return to results.
             </div>
         </div>
 
@@ -318,6 +348,7 @@
         ];
         let currentPhotoIndex = 0;
         let currentPhotoUrl = presetPhotos[0];
+        let optimizedPhotoUrl = presetPhotos[0]; // Scaled texture for high performance
 
         // Board State Representation
         let gridState = [];
@@ -334,40 +365,48 @@
         let draggedPieceId = null;
         let draggedFromIndex = null;
 
-        // Soundtrack Audio Elements & Loops
-        const audioMenu = new Audio('https://archive.org/download/wii-photo-channel-soundtrack/03%20SD%20Card%20Gallery.mp3');
-        const audioPuzzle = new Audio('https://archive.org/download/wii-photo-channel-soundtrack/09%20Puzzle.mp3');
-        const audioWin = new Audio('https://archive.org/download/wii-photo-channel-soundtrack/10%20Puzzle%20Completed.mp3');
+        // Soundtrack Audio Elements (Intro + Loop pairs)
+        const audioMenuBegin = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_MainMenu_Begin.wav');
+        const audioMenuLoop = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_MainMenu.wav');
+        
+        const audioPuzzleBegin = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_Puzzle_Begin.wav');
+        const audioPuzzleLoop = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_Puzzle.wav');
+        
+        const audioWin = new Audio('https://archive.org/download/photo-puzzle-puzzle-begin/PhotoPuzzle_Puzzle_End.wav');
 
-        audioMenu.preload = 'auto';
-        audioPuzzle.preload = 'auto';
+        audioMenuBegin.preload = 'auto';
+        audioMenuLoop.preload = 'auto';
+        audioMenuLoop.loop = true;
+
+        audioPuzzleBegin.preload = 'auto';
+        audioPuzzleLoop.preload = 'auto';
+        audioPuzzleLoop.loop = true;
+
         audioWin.preload = 'auto';
 
-        let menuLoopMonitor = null;
-        let puzzleLoopMonitor = null;
+        // Chain intro to loop when intro finishes
+        audioMenuBegin.onended = () => {
+            audioMenuLoop.currentTime = 0;
+            audioMenuLoop.play().catch(() => {});
+        };
+
+        audioPuzzleBegin.onended = () => {
+            audioPuzzleLoop.currentTime = 0;
+            audioPuzzleLoop.play().catch(() => {});
+        };
 
         function startMenuMusic() {
             stopAllMusic();
-            audioMenu.currentTime = 0;
-            audioMenu.play().catch(() => {});
-
-            menuLoopMonitor = setInterval(() => {
-                if (audioMenu.currentTime >= 68) { // 1:10 loop point (70)
-                    audioMenu.currentTime = 0;
-                }
-            }, 100);
+            audioMenuBegin.currentTime = 0;
+            audioMenuLoop.currentTime = 0;
+            audioMenuBegin.play().catch(() => {});
         }
 
         function startPuzzleMusic() {
             stopAllMusic();
-            audioPuzzle.currentTime = 0;
-            audioPuzzle.play().catch(() => {});
-
-            puzzleLoopMonitor = setInterval(() => {
-                if (audioPuzzle.currentTime >= 144) { // 2:26 loop point back to 1:14 (74s) (146)
-                    audioPuzzle.currentTime = 74;
-                }
-            }, 100);
+            audioPuzzleBegin.currentTime = 0;
+            audioPuzzleLoop.currentTime = 0;
+            audioPuzzleBegin.play().catch(() => {});
         }
 
         function playWinMusic() {
@@ -377,30 +416,73 @@
         }
 
         function stopAllMusic() {
-            if (menuLoopMonitor) clearInterval(menuLoopMonitor);
-            if (puzzleLoopMonitor) clearInterval(puzzleLoopMonitor);
-
-            audioMenu.pause();
-            audioPuzzle.pause();
+            audioMenuBegin.pause();
+            audioMenuLoop.pause();
+            audioPuzzleBegin.pause();
+            audioPuzzleLoop.pause();
             audioWin.pause();
+        }
+
+        // Downscale large images using canvas to prevent GPU texture thrashing & lag on high piece counts
+        function optimizePhotoForBoard(srcUrl, callback) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Cap maximum rendering dimension for silky-smooth performance on 192 pieces
+                const maxDim = 800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                try {
+                    optimizedPhotoUrl = canvas.toDataURL('image/jpeg', 0.85);
+                } catch (e) {
+                    optimizedPhotoUrl = srcUrl; // Fallback
+                }
+                callback();
+            };
+            img.onerror = () => {
+                optimizedPhotoUrl = srcUrl;
+                callback();
+            };
+            img.src = srcUrl;
         }
 
         function selectPieceCount(count, btnElement) {
             initAudio();
             selectedPieces = count;
 
-            // Configure aspect ratios for clean grid divisions
             if (count === 6) {
                 gridCols = 3; gridRows = 2;
             } else if (count === 12) {
                 gridCols = 4; gridRows = 3;
             } else if (count === 24) {
                 gridCols = 6; gridRows = 4;
+            } else if (count === 48) {
+                gridCols = 8; gridRows = 6;
             } else if (count === 192) {
                 gridCols = 16; gridRows = 12;
             }
 
-            startPuzzleGame();
+            optimizePhotoForBoard(currentPhotoUrl, () => {
+                startPuzzleGame();
+            });
         }
 
         function presetPhotoToggle() {
@@ -431,13 +513,10 @@
             isShuffling = true;
             
             const totalCells = gridCols * gridRows;
-            // Start with solved state (full solved image aligned)
             gridState = Array.from({ length: totalCells }, (_, i) => i);
 
-            // Set up cheat/reference image
-            document.getElementById('hint-image').src = currentPhotoUrl;
+            document.getElementById('cheat-image').src = currentPhotoUrl;
 
-            // Switch Screen Views with Zoom Animation
             document.getElementById('menu-screen').classList.add('hidden');
             const gameScreen = document.getElementById('game-screen');
             gameScreen.classList.remove('hidden');
@@ -447,14 +526,13 @@
 
             const boardContainer = document.getElementById('puzzle-board-container');
             boardContainer.classList.remove('zoom-intro');
-            void boardContainer.offsetWidth; // Trigger reflow
+            void boardContainer.offsetWidth;
             boardContainer.classList.add('zoom-intro');
 
             renderBoard();
 
-            // After zoom intro, perform animated visual glide shuffling
             setTimeout(() => {
-                animateGlideShuffle(() => {
+                animateFlashShuffle(() => {
                     isShuffling = false;
                     renderBoard();
                     startStopwatch();
@@ -462,11 +540,10 @@
             }, 600);
         }
 
-        // Gliding Shuffle FX: Calculates pixel offsets and translates elements visually to target slots before updating grid state
-        function animateGlideShuffle(callback) {
+        // Fast Flash Shuffle FX
+        function animateFlashShuffle(callback) {
             const totalCells = gridCols * gridRows;
 
-            // Pre-generate target scrambled array ensuring no piece remains in place
             let targetShuffle = Array.from({ length: totalCells }, (_, i) => i);
             do {
                 for (let i = targetShuffle.length - 1; i > 0; i--) {
@@ -476,81 +553,98 @@
             } while (targetShuffle.every((val, idx) => val === idx));
 
             let step = 0;
-            // Fast step duration
-            const durationPerStep = Math.max(12, Math.min(60, Math.floor(600 / totalCells)));
+            const flashBatchSize = Math.max(1, Math.floor(totalCells / 12));
+            const intervalTime = Math.max(15, Math.floor(300 / (totalCells / flashBatchSize)));
 
-            function executeStep() {
+            const shuffleInterval = setInterval(() => {
                 if (step >= totalCells) {
+                    clearInterval(shuffleInterval);
                     gridState = [...targetShuffle];
                     callback();
                     return;
                 }
 
-                const targetIdx = step;
-                const targetPieceVal = targetShuffle[targetIdx];
-                const currentIdx = gridState.indexOf(targetPieceVal);
+                const cells = document.querySelectorAll('.puzzle-cell');
+                for (let b = 0; b < flashBatchSize && (step + b) < totalCells; b++) {
+                    const idx = step + b;
+                    const targetPieceVal = targetShuffle[idx];
+                    const currentIdx = gridState.indexOf(targetPieceVal);
 
-                if (currentIdx !== targetIdx && currentIdx !== -1) {
-                    const cells = document.querySelectorAll('.puzzle-cell');
-                    const sourceCell = cells[currentIdx];
-                    const destCell = cells[targetIdx];
+                    if (currentIdx !== -1 && currentIdx !== idx) {
+                        [gridState[currentIdx], gridState[idx]] = [gridState[idx], gridState[currentIdx]];
+                        const cell1 = cells[currentIdx];
+                        const cell2 = cells[idx];
 
-                    if (sourceCell && destCell) {
-                        const sourcePiece = sourceCell.querySelector('.puzzle-piece');
-                        const destPiece = destCell.querySelector('.puzzle-piece');
-
-                        const sourceRect = sourceCell.getBoundingClientRect();
-                        const destRect = destCell.getBoundingClientRect();
-
-                        const dx = destRect.left - sourceRect.left;
-                        const dy = destRect.top - sourceRect.top;
-
-                        if (sourcePiece) {
-                            sourceCell.classList.add('elevated-cell');
-                            sourcePiece.classList.add('shuffling-piece');
-                            sourcePiece.style.transform = `translate(${dx}px, ${dy}px)`;
+                        if (cell1) {
+                            cell1.classList.remove('shuffle-flash');
+                            void cell1.offsetWidth;
+                            cell1.classList.add('shuffle-flash');
                         }
-
-                        if (destPiece) {
-                            destCell.classList.add('elevated-cell');
-                            destPiece.classList.add('shuffling-piece');
-                            destPiece.style.transform = `translate(${-dx}px, ${-dy}px)`;
+                        if (cell2) {
+                            cell2.classList.remove('shuffle-flash');
+                            void cell2.offsetWidth;
+                            cell2.classList.add('shuffle-flash');
                         }
-
-                        setTimeout(() => {
-                            // Reset elevated z-index styling on parent cells
-                            sourceCell.classList.remove('elevated-cell');
-                            destCell.classList.remove('elevated-cell');
-                            
-                            // Swap grid values after glide transition finishes
-                            [gridState[currentIdx], gridState[targetIdx]] = [gridState[targetIdx], gridState[currentIdx]];
-                            renderBoard();
-                            step++;
-                            executeStep();
-                        }, durationPerStep);
-                    } else {
-                        step++;
-                        executeStep();
                     }
-                } else {
-                    step++;
-                    executeStep();
+                }
+
+                step += flashBatchSize;
+                updatePiecePositions();
+            }, intervalTime);
+        }
+
+        // Fast state sync without rebuilding entire DOM tree to avoid memory allocation lag
+        function updatePiecePositions() {
+            const gridContainer = document.getElementById('puzzle-grid');
+            const cells = gridContainer.children;
+
+            solvedCount = 0;
+            const totalCells = gridCols * gridRows;
+
+            for (let slotIndex = 0; slotIndex < totalCells; slotIndex++) {
+                const pieceVal = gridState[slotIndex];
+                const isCorrect = (pieceVal === slotIndex);
+                if (isCorrect) solvedCount++;
+
+                const cell = cells[slotIndex];
+                if (!cell) continue;
+
+                cell.className = `puzzle-cell relative overflow-hidden bg-black/20 ${isCorrect ? 'border-none' : 'border border-amber-900/30'}`;
+
+                const piece = cell.firstElementChild;
+                if (piece) {
+                    piece.dataset.pieceVal = pieceVal;
+                    
+                    const cellSize = parseFloat(cell.style.width);
+                    const boardWidth = cellSize * gridCols;
+                    const boardHeight = cellSize * gridRows;
+
+                    const origCol = pieceVal % gridCols;
+                    const origRow = Math.floor(pieceVal / gridCols);
+
+                    piece.style.backgroundPosition = `${origCol * -cellSize}px ${origRow * -cellSize}px`;
+                    
+                    piece.ondragstart = (e) => handleDragStart(e, pieceVal, slotIndex);
+                    piece.ontouchstart = (e) => handleTouchStart(e, pieceVal, slotIndex);
                 }
             }
 
-            executeStep();
+            document.getElementById('progress-text').textContent = `Solved: ${solvedCount} / ${totalCells}`;
+
+            if (solvedCount === totalCells && isGameRunning && !isShuffling) {
+                stopStopwatch();
+                setTimeout(() => showResultsModal(), 300);
+            }
         }
 
         function renderBoard() {
             const gridContainer = document.getElementById('puzzle-grid');
             gridContainer.innerHTML = '';
 
-            // Compute responsive cell sizing dynamically based on screen space
             const boardContainer = document.getElementById('puzzle-board-container').parentElement;
             const maxWidth = Math.min(boardContainer.clientWidth - 32, 800);
             const maxHeight = Math.min(boardContainer.clientHeight - 32, 550);
 
-            // Compute ideal cell size respecting grid proportions
             const cellSizeByWidth = maxWidth / gridCols;
             const cellSizeByHeight = maxHeight / gridRows;
             const cellSize = Math.max(16, Math.floor(Math.min(cellSizeByWidth, cellSizeByHeight)));
@@ -576,7 +670,6 @@
                 cell.style.height = `${cellSize}px`;
                 cell.dataset.slotIndex = slotIndex;
 
-                // Drag and Drop Event Listeners for Slot
                 cell.ondragover = (e) => { e.preventDefault(); cell.classList.add('drag-over-slot'); };
                 cell.ondragleave = () => cell.classList.remove('drag-over-slot');
                 cell.ondrop = (e) => handleDrop(e, slotIndex);
@@ -587,17 +680,14 @@
                     piece.draggable = !isShuffling;
                     piece.dataset.pieceVal = pieceVal;
 
-                    // Compute background slice position
                     const origCol = pieceVal % gridCols;
                     const origRow = Math.floor(pieceVal / gridCols);
 
-                    piece.style.backgroundImage = `url('${currentPhotoUrl}')`;
+                    piece.style.backgroundImage = `url('${optimizedPhotoUrl}')`;
                     piece.style.backgroundSize = `${boardWidth}px ${boardHeight}px`;
                     piece.style.backgroundPosition = `${origCol * -cellSize}px ${origRow * -cellSize}px`;
 
                     piece.ondragstart = (e) => handleDragStart(e, pieceVal, slotIndex);
-
-                    // Touch event handlers for mobile devices
                     piece.ontouchstart = (e) => handleTouchStart(e, pieceVal, slotIndex);
 
                     cell.appendChild(piece);
@@ -606,10 +696,8 @@
                 gridContainer.appendChild(cell);
             });
 
-            // Update Progress Display
             document.getElementById('progress-text').textContent = `Solved: ${solvedCount} / ${totalCells}`;
 
-            // Check Win Condition
             if (solvedCount === totalCells && isGameRunning && !isShuffling) {
                 stopStopwatch();
                 setTimeout(() => showResultsModal(), 300);
@@ -680,18 +768,27 @@
             document.ontouchend = null;
         }
 
+        function triggerSnapAnimation(cellIdx) {
+            const targetCell = document.querySelectorAll('.puzzle-cell')[cellIdx];
+            if (targetCell) {
+                targetCell.classList.remove('snap-animation');
+                void targetCell.offsetWidth; // Force reflow
+                targetCell.classList.add('snap-animation');
+                setTimeout(() => targetCell.classList.remove('snap-animation'), 350);
+            }
+        }
+
         function swapPieces(fromIdx, toIdx) {
             [gridState[fromIdx], gridState[toIdx]] = [gridState[toIdx], gridState[fromIdx]];
 
             renderBoard();
 
-            // Check if swapped piece snapped correctly
+            // Trigger snap animation for ALL pieces that land in their correct position
             if (gridState[toIdx] === toIdx) {
-                const targetCell = document.querySelectorAll('.puzzle-cell')[toIdx];
-                if (targetCell) {
-                    targetCell.classList.add('snap-animation');
-                    setTimeout(() => targetCell.classList.remove('snap-animation'), 350);
-                }
+                triggerSnapAnimation(toIdx);
+            }
+            if (gridState[fromIdx] === fromIdx) {
+                triggerSnapAnimation(fromIdx);
             }
         }
 
@@ -730,8 +827,16 @@
                 }
             }
 
+            const oldGrid = [...gridState];
             gridState = newGrid;
             renderBoard();
+
+            // Check and trigger snap pulse for all pieces that moved into their correct slots
+            gridState.forEach((pieceVal, idx) => {
+                if (pieceVal === idx && oldGrid[idx] !== idx) {
+                    triggerSnapAnimation(idx);
+                }
+            });
         }
 
         function startStopwatch() {
@@ -769,7 +874,7 @@
         }
 
         function initAudio() {
-            if (audioMenu.paused && document.getElementById('menu-screen').classList.contains('hidden') === false) {
+            if (audioMenuBegin.paused && audioMenuLoop.paused && document.getElementById('menu-screen').classList.contains('hidden') === false) {
                 startMenuMusic();
             }
         }
@@ -789,7 +894,28 @@
             }, 10);
         }
 
+        function viewFinishedPuzzle(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('results-modal');
+            const overlay = document.getElementById('view-puzzle-overlay');
+            
+            modal.classList.add('hidden');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        }
+
+        function dismissFinishedPuzzleView() {
+            const modal = document.getElementById('results-modal');
+            const overlay = document.getElementById('view-puzzle-overlay');
+            
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            modal.classList.remove('hidden');
+        }
+
         function restartPuzzle() {
+            document.getElementById('view-puzzle-overlay').classList.add('hidden');
+            document.getElementById('view-puzzle-overlay').classList.remove('flex');
             const modal = document.getElementById('results-modal');
             modal.classList.add('hidden');
             startPuzzleGame();
@@ -798,16 +924,22 @@
         function returnToMenu() {
             stopStopwatch();
             isShuffling = false;
+            document.getElementById('view-puzzle-overlay').classList.add('hidden');
+            document.getElementById('view-puzzle-overlay').classList.remove('flex');
             document.getElementById('results-modal').classList.add('hidden');
             document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('flex');
             document.getElementById('menu-screen').classList.remove('hidden');
             startMenuMusic();
         }
 
-        function toggleHintModal() {
-            const modal = document.getElementById('hint-modal');
-            modal.classList.toggle('hidden');
+        function toggleCheatOverlay() {
+            const overlay = document.getElementById('cheat-overlay');
+            overlay.classList.toggle('hidden');
+            if (!overlay.classList.contains('hidden')) {
+                overlay.classList.add('flex');
+            } else {
+                overlay.classList.remove('flex');
+            }
         }
 
         // Add user interaction listener to initiate background music
